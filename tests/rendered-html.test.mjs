@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { access } from "node:fs/promises";
 import test from "node:test";
 
 async function render() {
@@ -32,4 +33,23 @@ test("server-renders the Mimo expression studio", async () => {
   assert.match(html, /expression-happy/);
   assert.match(html, /og-wizard\.png/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton/i);
+});
+
+test("ships every Sage expression sprite", async () => {
+  const expressions = [
+    "idle",
+    "happy",
+    "listening",
+    "thinking",
+    "surprised",
+    "sad",
+    "angry",
+    "sleepy",
+  ];
+
+  await Promise.all(
+    expressions.map((expression) =>
+      access(new URL(`../public/avatars/sage/${expression}.webp`, import.meta.url)),
+    ),
+  );
 });

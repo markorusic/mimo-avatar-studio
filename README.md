@@ -1,9 +1,10 @@
 # Mimo animated avatar
 
 Mimo is a self-contained avatar engine with five selectable characters, eight
-expressions, smooth CSS transitions, adjustable motion, and a looping demo.
-It uses React and CSS only—there are no external assets, accounts, API keys, or
-runtime services.
+expressions, smooth transitions, adjustable motion, and a looping demo. Four
+characters use CSS rigs; Sage uses a high-resolution illustrated sprite pack
+with a dedicated image for each expression. There are no accounts, API keys,
+or runtime services.
 
 ## Run locally
 

@@ -276,6 +276,53 @@ a {
   transition: transform 0.55s cubic-bezier(.2,.85,.24,1.25);
 }
 
+.sprite-rig {
+  width: min(520px, 94%);
+  aspect-ratio: 1;
+  position: relative;
+  z-index: 2;
+  transform-origin: 50% 88%;
+  animation: idleFloat calc(3s / var(--intensity)) ease-in-out infinite;
+  will-change: transform;
+}
+
+.expression-sprite {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0;
+  object-fit: contain;
+  pointer-events: none;
+  transform: scale(0.985);
+  filter: drop-shadow(0 14px 8px rgba(20,14,57,0.2));
+  transition:
+    opacity 0.38s ease,
+    transform 0.52s cubic-bezier(.2,.85,.24,1.12);
+  will-change: opacity, transform;
+}
+
+.expression-sprite.active {
+  z-index: 2;
+  opacity: 1;
+  transform: scale(1);
+}
+
+.sprite-shadow {
+  width: 58%;
+  height: 7%;
+  position: absolute;
+  left: 50%;
+  bottom: 0.5%;
+  z-index: 0;
+  border-radius: 50%;
+  background: rgba(20,14,57,0.34);
+  filter: blur(9px);
+  transform: translateX(-50%);
+  animation: shadowBreathe calc(3s / var(--intensity)) ease-in-out infinite;
+}
+
 .avatar-shadow {
   width: 230px;
   height: 30px;
@@ -788,6 +835,23 @@ a {
   top: 7px;
   background: var(--portrait-stage);
   clip-path: polygon(52% 0, 88% 82%, 100% 100%, 0 100%, 12% 78%);
+}
+
+.character-portrait-sprite::before,
+.character-portrait-sprite::after {
+  content: none;
+}
+
+.character-portrait-sprite img {
+  width: 88px;
+  height: 88px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 2;
+  object-fit: contain;
+  filter: drop-shadow(0 3px 2px rgba(20,14,57,0.22));
+  transform: translate(-50%, -41%);
 }
 
 .character-label {
@@ -1623,6 +1687,35 @@ footer {
 .avatar-scene[data-expression="sleepy"] .mouth span { opacity: 0; }
 .avatar-scene[data-expression="sleepy"] .sleep-notes { opacity: 1; }
 
+/* Illustrated sprite motion. The face is baked per state; motion remains live. */
+.avatar-scene[data-expression="happy"] .sprite-rig {
+  animation: happyBounce calc(0.72s / var(--intensity)) ease-in-out infinite alternate;
+}
+
+.avatar-scene[data-expression="listening"] .sprite-rig {
+  animation: listenLean calc(1.3s / var(--intensity)) ease-in-out infinite alternate;
+}
+
+.avatar-scene[data-expression="thinking"] .sprite-rig {
+  animation: spriteThink calc(2.2s / var(--intensity)) ease-in-out infinite alternate;
+}
+
+.avatar-scene[data-expression="surprised"] .sprite-rig {
+  animation: surprisePop calc(1.5s / var(--intensity)) ease-in-out infinite;
+}
+
+.avatar-scene[data-expression="sad"] .sprite-rig {
+  animation: spriteSad calc(3.2s / var(--intensity)) ease-in-out infinite alternate;
+}
+
+.avatar-scene[data-expression="angry"] .sprite-rig {
+  animation: angryShake calc(0.55s / var(--intensity)) linear infinite;
+}
+
+.avatar-scene[data-expression="sleepy"] .sprite-rig {
+  animation: sleepySway calc(3.8s / var(--intensity)) ease-in-out infinite alternate;
+}
+
 .signal,
 .thoughts,
 .sleep-notes {
@@ -1668,6 +1761,7 @@ footer {
 .sleep-notes span:nth-child(3) { font-size: 38px; animation-delay: 1.4s; }
 
 .studio.is-transitioning .avatar-rig { animation: expressionShift 0.52s cubic-bezier(.2,.9,.22,1.18); }
+.studio.is-transitioning .sprite-rig { animation: expressionShift 0.52s cubic-bezier(.2,.9,.22,1.18); }
 
 @keyframes idleFloat { 0%, 100% { transform: translateY(4px); } 50% { transform: translateY(calc(-5px * var(--intensity))); } }
 @keyframes shadowBreathe { 0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.7; } 50% { transform: translateX(-50%) scale(0.87); opacity: 0.48; } }
@@ -1684,6 +1778,8 @@ footer {
 @keyframes thoughtFloat { from { transform: translateY(2px) rotate(-5deg); } to { transform: translateY(-8px) rotate(5deg); } }
 @keyframes sleepNote { 0% { opacity: 0; transform: translate(0, 28px) scale(0.7) rotate(-8deg); } 25% { opacity: 1; } 100% { opacity: 0; transform: translate(65px, -60px) scale(1.25) rotate(8deg); } }
 @keyframes wizardSparkle { 0%, 100% { transform: scale(0.86) rotate(0deg); filter: drop-shadow(0 0 3px rgba(255,214,107,0.45)); } 50% { transform: scale(1.18) rotate(45deg); filter: drop-shadow(0 0 8px rgba(255,214,107,0.95)); } }
+@keyframes spriteThink { from { transform: translateY(3px) rotate(-0.7deg); } to { transform: translateY(-5px) rotate(0.7deg); } }
+@keyframes spriteSad { from { transform: translateY(9px) rotate(0.8deg); } to { transform: translateY(13px) rotate(-0.5deg); } }
 
 @media (max-width: 1050px) {
   .studio { grid-template-columns: 1fr; }

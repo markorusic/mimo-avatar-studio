@@ -59,6 +59,17 @@ function Avatar({
     "--cheek-color": character.cheek,
   } as React.CSSProperties;
 
+  const sceneEffects = (
+    <>
+      <div className="orbit orbit-one" aria-hidden="true" />
+      <div className="orbit orbit-two" aria-hidden="true" />
+      <div className="signal signal-left" aria-hidden="true"><i /><i /><i /></div>
+      <div className="signal signal-right" aria-hidden="true"><i /><i /><i /></div>
+      <div className="thoughts" aria-hidden="true"><i /><i /><i /></div>
+      <div className="sleep-notes" aria-hidden="true"><span>z</span><span>z</span><span>z</span></div>
+    </>
+  );
+
   return (
     <div
       className="avatar-scene"
@@ -69,13 +80,23 @@ function Avatar({
       aria-label={`${character.label} is ${expression}`}
       role="img"
     >
-      <div className="orbit orbit-one" aria-hidden="true" />
-      <div className="orbit orbit-two" aria-hidden="true" />
-      <div className="signal signal-left" aria-hidden="true"><i /><i /><i /></div>
-      <div className="signal signal-right" aria-hidden="true"><i /><i /><i /></div>
-      <div className="thoughts" aria-hidden="true"><i /><i /><i /></div>
-      <div className="sleep-notes" aria-hidden="true"><span>z</span><span>z</span><span>z</span></div>
-      <div className="avatar-rig">
+      {sceneEffects}
+      {character.renderer === "sprite" ? (
+        <div className="sprite-rig">
+          <div className="sprite-shadow" aria-hidden="true" />
+          {expressionIds.map((spriteExpression) => (
+            <img
+              key={spriteExpression}
+              className={`expression-sprite ${spriteExpression === expression ? "active" : ""}`}
+              src={`${character.spritePath}/${spriteExpression}.webp`}
+              alt=""
+              aria-hidden="true"
+              draggable={false}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="avatar-rig">
         <div className="character-details" aria-hidden="true">
           <span className="detail detail-one" />
           <span className="detail detail-two" />
@@ -100,7 +121,8 @@ function Avatar({
           <div className="nose" />
           <div className="mouth"><span /></div>
         </div>
-      </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -284,7 +306,13 @@ export default function AvatarStudio() {
                   aria-pressed={characterId === item.id}
                   data-testid={`character-${item.id}`}
                 >
-                  <span className="character-portrait" data-shape={item.shape}><i /></span>
+                  {item.renderer === "sprite" ? (
+                    <span className="character-portrait character-portrait-sprite" data-shape={item.shape}>
+                      <img src={`${item.spritePath}/idle.webp`} alt="" aria-hidden="true" />
+                    </span>
+                  ) : (
+                    <span className="character-portrait" data-shape={item.shape}><i /></span>
+                  )}
                   <span className="character-label"><strong>{item.label}</strong><small>{item.kind}</small></span>
                 </button>
               ))}
