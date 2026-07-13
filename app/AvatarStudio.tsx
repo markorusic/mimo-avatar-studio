@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import SageAvatar, {
   sageExpressions,
   isSageExpression,
@@ -32,28 +33,19 @@ declare global {
 export default function AvatarStudio() {
   const [expression, setExpression] = useState<SageExpression>("idle");
   const [intensity, setIntensity] = useState(1);
-  const [isTransitioning, setIsTransitioning] = useState(false);
   const [autoPlay, setAutoPlay] = useState(false);
   const [eventCount, setEventCount] = useState(1);
-  const transitionTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const activeExpression = useMemo(
     () => expressions.find((item) => item.id === expression) ?? expressions[0],
     [expression],
   );
 
-  const beginTransition = useCallback(() => {
-    if (transitionTimer.current) clearTimeout(transitionTimer.current);
-    setIsTransitioning(true);
-    transitionTimer.current = setTimeout(() => setIsTransitioning(false), 520);
-  }, []);
-
   const applyAvatarState = useCallback((next: { expression?: SageExpression }) => {
     if (!next.expression) return;
-    beginTransition();
     setExpression(next.expression);
     setEventCount((count) => count + 1);
-  }, [beginTransition]);
+  }, []);
 
   const triggerExpression = useCallback((next: SageExpression) => {
     applyAvatarState({ expression: next });
@@ -99,7 +91,6 @@ export default function AvatarStudio() {
       window.removeEventListener("avatar:state", onCustomEvent);
       window.removeEventListener("message", onMessage);
       delete window.avatarController;
-      if (transitionTimer.current) clearTimeout(transitionTimer.current);
     };
   }, [applyAvatarState, triggerExpression]);
 
@@ -109,41 +100,30 @@ export default function AvatarStudio() {
       setExpression((current) => {
         const currentIndex = sageExpressions.indexOf(current);
         const next = sageExpressions[(currentIndex + 1) % sageExpressions.length];
-        beginTransition();
         setEventCount((count) => count + 1);
         return next;
       });
     }, 2400);
     return () => clearInterval(interval);
-  }, [autoPlay, beginTransition]);
+  }, [autoPlay]);
 
   return (
     <main className="site-shell">
       <header className="topbar">
-        <a className="brand" href="#top" aria-label="Mimo home">
+        <Link className="brand" href="/" aria-label="Mimo home">
           <span className="brand-mark">M</span>
           <span>MIMO</span>
           <small>EXPRESSION ENGINE</small>
-        </a>
-        <div className="status-pill"><span /> LOCAL · READY</div>
+        </Link>
+        <nav className="site-nav" aria-label="Main navigation">
+          <a href="#studio">Studio</a>
+          <Link href="/canvas">Canvas demo</Link>
+          <a href="#install">Install</a>
+          <a href="https://github.com/markorusic/mimo-avatar-studio" target="_blank" rel="noreferrer">GitHub</a>
+        </nav>
       </header>
 
-      <section className="hero" id="top">
-        <div className="hero-copy">
-          <p className="eyebrow"><span>01</span> ILLUSTRATED AVATAR ENGINE</p>
-          <h1>ONE WIZARD.<br /><em>EVERY FEELING.</em></h1>
-          <p className="intro">
-            Turn incoming events into expressive motion with Sage, a friendly illustrated
-            wizard built from a consistent set of high-resolution animated states.
-          </p>
-        </div>
-        <div className="hero-note" aria-hidden="true">
-          <span>1×8</span>
-          <p>avatar ×<br />expressions</p>
-        </div>
-      </section>
-
-      <section className={`studio ${isTransitioning ? "is-transitioning" : ""}`}>
+      <section className="studio" id="studio">
         <div
           className="stage-panel"
           style={{
@@ -159,6 +139,7 @@ export default function AvatarStudio() {
             expression={expression}
             intensity={intensity}
             className="studio-avatar"
+            expressionShiftCooldown={240}
           />
           <div className="now-playing">
             <div>
@@ -235,9 +216,65 @@ export default function AvatarStudio() {
         </aside>
       </section>
 
+      <section className="install-section" id="install">
+        <div className="install-heading">
+          <p className="section-kicker">COPY-OWNED · SHADCN-STYLE</p>
+          <h2>Bring Sage into your React app.</h2>
+          <p>
+            Install the component source and all eight local sprites directly into your
+            project. No account, hosted runtime, or proprietary animation tool required.
+          </p>
+        </div>
+
+        <div className="install-grid">
+          <article className="install-card install-card-primary">
+            <div className="install-card-top">
+              <span>CLI</span>
+              <strong>Recommended</strong>
+            </div>
+            <h3>One command</h3>
+            <p>
+              Run this from your React project. The installer detects shadcn aliases,
+              places the component in your components folder, and copies sprites to public.
+            </p>
+            <pre><code>npx --yes github:markorusic/mimo-avatar-studio add .</code></pre>
+            <p className="install-note">Existing customized files are protected unless you add <code>--force</code>.</p>
+          </article>
+
+          <article className="install-card">
+            <div className="install-card-top">
+              <span>MANUAL</span>
+              <strong>Copy and own</strong>
+            </div>
+            <h3>Three source files + sprites</h3>
+            <ol>
+              <li>Copy <code>packages/sage-avatar/src</code> into your component folder.</li>
+              <li>Copy <code>packages/sage-avatar/assets</code> to <code>public/avatars/sage</code>.</li>
+              <li>Import <code>SageAvatar</code> and control it with an expression prop.</li>
+            </ol>
+            <a href="https://github.com/markorusic/mimo-avatar-studio/tree/main/packages/sage-avatar" target="_blank" rel="noreferrer">
+              Open the portable kit ↗
+            </a>
+          </article>
+        </div>
+
+        <div className="usage-example">
+          <div>
+            <span>USE IT</span>
+            <strong>Controlled React component</strong>
+          </div>
+          <pre><code>{`import { SageAvatar } from "@/components/sage-avatar";
+
+<SageAvatar
+  expression="thinking"
+  expressionShiftCooldown={240}
+/>`}</code></pre>
+        </div>
+      </section>
+
       <footer>
-        <p>BUILT WITH REACT + CSS MOTION</p>
-        <p>1 ILLUSTRATED AVATAR · 8 EXPRESSIONS · ZERO EXTERNAL SERVICES</p>
+        <p>MIMO / SAGE AVATAR KIT</p>
+        <p>React component · 8 illustrated expressions · MIT licensed</p>
       </footer>
     </main>
   );

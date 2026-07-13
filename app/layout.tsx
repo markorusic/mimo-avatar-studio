@@ -1,37 +1,35 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import "./globals.css";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const headerList = await headers();
-  const host = headerList.get("host") ?? "localhost:3000";
-  const protocol = headerList.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
-  const origin = `${protocol}://${host}`;
+const productionHost = process.env.VERCEL_PROJECT_PRODUCTION_URL;
+const origin = process.env.NEXT_PUBLIC_SITE_URL
+  ?? (productionHost ? `https://${productionHost}` : "http://localhost:3000");
 
-  return {
-    title: "Mimo — Sage Expression Avatar",
-    description:
-      "A friendly illustrated wizard with eight event-driven animated expressions.",
-    metadataBase: new URL(origin),
-    icons: {
-      icon: "/favicon.svg",
-      shortcut: "/favicon.svg",
-    },
-    openGraph: {
-      title: "Sage — One wizard. Every feeling.",
-      description: "A friendly illustrated wizard with eight event-driven animated expressions.",
-      type: "website",
-      url: origin,
-      images: [{ url: `${origin}/og-wizard.png`, width: 1672, height: 941, alt: "Sage the friendly illustrated wizard" }],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: "Sage — One wizard. Every feeling.",
-      description: "A friendly illustrated wizard with eight event-driven animated expressions.",
-      images: [`${origin}/og-wizard.png`],
-    },
-  };
-}
+export const metadata: Metadata = {
+  title: {
+    default: "Mimo Avatar Studio",
+    template: "%s",
+  },
+  description: "A portable React avatar with eight illustrated, event-driven expressions.",
+  metadataBase: new URL(origin),
+  icons: {
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
+  },
+  openGraph: {
+    title: "Mimo Avatar Studio",
+    description: "Try Sage, explore the canvas integration, and copy the avatar into your React app.",
+    type: "website",
+    url: origin,
+    images: [{ url: "/og-wizard.png", width: 1672, height: 941, alt: "Sage the friendly illustrated wizard" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Mimo Avatar Studio",
+    description: "A portable React avatar with eight illustrated, event-driven expressions.",
+    images: ["/og-wizard.png"],
+  },
+};
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (

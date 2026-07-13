@@ -2,34 +2,33 @@ import assert from "node:assert/strict";
 import { access, readFile } from "node:fs/promises";
 import test from "node:test";
 
-async function render() {
-  const workerUrl = new URL("../dist/server/index.js", import.meta.url);
-  workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
-  const { default: worker } = await import(workerUrl.href);
-
-  return worker.fetch(
-    new Request("http://localhost/", { headers: { accept: "text/html", host: "localhost" } }),
-    { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } },
-    { waitUntil() {}, passThroughOnException() {} },
-  );
+async function readBuiltPage(name) {
+  return readFile(new URL(`../.next/server/app/${name}.html`, import.meta.url), "utf8");
 }
 
-test("server-renders the Mimo expression studio", async () => {
-  const response = await render();
-  assert.equal(response.status, 200);
-  assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
-
-  const html = await response.text();
-  assert.match(html, /<title>Mimo — Sage Expression Avatar<\/title>/i);
-  assert.match(html, /ONE WIZARD/);
-  assert.match(html, /EVERY FEELING/);
+test("prerenders the Studio with public installation docs", async () => {
+  const html = await readBuiltPage("index");
+  assert.match(html, /<title>Mimo Avatar Studio<\/title>/i);
   assert.match(html, /LIVE AVATAR · SAGE/);
   assert.match(html, /\/avatars\/sage\/idle\.webp/);
   assert.match(html, /Send an expression/);
   assert.match(html, /expression-happy/);
+  assert.match(html, /Bring Sage into your React app/);
+  assert.match(html, /github:markorusic\/mimo-avatar-studio/);
+  assert.match(html, /href="\/canvas"/);
   assert.match(html, /og-wizard\.png/);
+  assert.doesNotMatch(html, /ONE WIZARD|EVERY FEELING/);
   assert.doesNotMatch(html, /Choose your avatar|character-nova|character-pip|character-moss/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton/i);
+});
+
+test("prerenders the interactive canvas example", async () => {
+  const html = await readBuiltPage("canvas");
+  assert.match(html, /<title>Sage Canvas · Mimo Avatar Studio<\/title>/i);
+  assert.match(html, /Interactive integration example/);
+  assert.match(html, /aria-label="Drawing canvas"/);
+  assert.match(html, /Disable event pop animation/);
+  assert.match(html, /href="\/"/);
 });
 
 test("ships every Sage expression sprite", async () => {

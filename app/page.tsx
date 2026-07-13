@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import AvatarStudio from "./AvatarStudio";
 
 export const metadata: Metadata = {
-  title: "Mimo — Sage Expression Avatar",
+  title: "Mimo Avatar Studio",
   description:
-    "A friendly illustrated wizard with eight event-driven animated expressions.",
+    "Try Sage, explore the canvas integration, and copy the avatar into your React app.",
 };
 
 export default function Home() {

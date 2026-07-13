@@ -3,6 +3,12 @@
   "version": "0.1.0",
   "description": "A portable illustrated Sage avatar with animated expressions.",
   "private": true,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/markorusic/mimo-avatar-studio.git",
+    "directory": "packages/sage-avatar"
+  },
   "type": "module",
   "bin": {
     "sage-avatar": "./bin/sage-avatar.mjs"

@@ -13,9 +13,8 @@
 # testing
 /coverage
 
-# next.js
+# next.js / vercel
 /.next/
-/.vinext/
 /out/
 
 # misc
@@ -33,10 +32,9 @@ yarn-error.log*
 
 # vercel
 .vercel
+/.next-dev.*.log
 
 # typescript
 next-env.d.ts
-/dist/
-/.wrangler/
 /outputs/
 /work/

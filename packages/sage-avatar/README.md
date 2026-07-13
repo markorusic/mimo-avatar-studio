@@ -3,7 +3,13 @@
 This folder is the complete portable component: React source, isolated CSS,
 the eight expression sprites, and a zero-dependency installer.
 
-From this repository, install it into another React project with:
+Install it from the public repository with:
+
+```bash
+npx --yes github:markorusic/mimo-avatar-studio add .
+```
+
+From a local clone, point the installer at another React project with:
 
 ```bash
 node packages/sage-avatar/bin/sage-avatar.mjs add ../your-react-app
