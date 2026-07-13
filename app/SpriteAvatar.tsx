@@ -47,25 +47,25 @@ export default function SpriteAvatar({
 }) {
   return (
     <div
-      className={`${styles.scene} ${transitioning ? styles.transitioning : ""}`}
+      className={`${styles.sageAvatarScene} ${transitioning ? styles.sageAvatarTransitioning : ""}`}
       data-expression={expression}
       data-character={character.id}
-      style={{ "--intensity": intensity } as CSSProperties}
+      style={{ "--sage-avatar-intensity": intensity } as CSSProperties}
       aria-label={`${character.label} is ${expression}`}
       role="img"
     >
-      <div className={`${styles.orbit} ${styles.orbitOne}`} aria-hidden="true" />
-      <div className={`${styles.orbit} ${styles.orbitTwo}`} aria-hidden="true" />
-      <div className={`${styles.signal} ${styles.signalLeft}`} aria-hidden="true"><i /><i /><i /></div>
-      <div className={styles.thoughts} aria-hidden="true"><i /><i /><i /></div>
-      <div className={styles.sleepNotes} aria-hidden="true"><span>z</span><span>z</span><span>z</span></div>
+      <div className={`${styles.sageAvatarOrbit} ${styles.sageAvatarOrbitOne}`} aria-hidden="true" />
+      <div className={`${styles.sageAvatarOrbit} ${styles.sageAvatarOrbitTwo}`} aria-hidden="true" />
+      <div className={`${styles.sageAvatarSignal} ${styles.sageAvatarSignalLeft}`} aria-hidden="true"><i /><i /><i /></div>
+      <div className={styles.sageAvatarThoughts} aria-hidden="true"><i /><i /><i /></div>
+      <div className={styles.sageAvatarSleepNotes} aria-hidden="true"><span>z</span><span>z</span><span>z</span></div>
 
-      <div className={styles.spriteRig}>
-        <div className={styles.spriteShadow} aria-hidden="true" />
+      <div className={styles.sageAvatarSpriteRig}>
+        <div className={styles.sageAvatarSpriteShadow} aria-hidden="true" />
         {expressionIds.map((spriteExpression) => (
           <img
             key={spriteExpression}
-            className={`${styles.expressionSprite} ${spriteExpression === expression ? styles.active : ""}`}
+            className={`${styles.sageAvatarExpressionSprite} ${spriteExpression === expression ? styles.sageAvatarActive : ""}`}
             src={`${character.assetPath}/${spriteExpression}.webp`}
             alt=""
             aria-hidden="true"

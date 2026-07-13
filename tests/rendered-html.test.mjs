@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { access } from "node:fs/promises";
+import { access, readFile } from "node:fs/promises";
 import test from "node:test";
 
 async function render() {
@@ -49,4 +49,19 @@ test("ships every Sage expression sprite", async () => {
       access(new URL(`../public/avatars/sage/${expression}.webp`, import.meta.url)),
     ),
   );
+});
+
+test("keeps Sage avatar styles fully namespaced", async () => {
+  const css = await readFile(
+    new URL("../app/SpriteAvatar.module.css", import.meta.url),
+    "utf8",
+  );
+  const classNames = [...css.matchAll(/\.([A-Za-z][A-Za-z0-9_-]*)/g)]
+    .map((match) => match[1]);
+
+  assert.ok(classNames.length > 0);
+  assert.ok(classNames.every((className) => className.startsWith("sageAvatar")));
+  assert.match(css, /--sage-avatar-intensity/);
+  assert.doesNotMatch(css, /--(?:intensity|avatar-)/);
+  assert.doesNotMatch(css, /@keyframes\s+(?!sageAvatar)/);
 });
