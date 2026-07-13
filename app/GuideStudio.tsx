@@ -379,7 +379,6 @@ import guideCharacter from "@/components/mimo-guide/characters/${activeCharacter
                 <span className="key-number">{String(index + 1).padStart(2, "0")}</span>
                 <span className="expression-symbol">{item.symbol}</span>
                 <span className="expression-name">{item.label}</span>
-                <span className="arrow">↗</span>
               </button>
             ))}
           </div>

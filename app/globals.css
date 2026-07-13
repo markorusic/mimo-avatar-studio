@@ -459,19 +459,6 @@ a {
   letter-spacing: -0.03em;
 }
 
-.arrow {
-  align-self: center;
-  padding-bottom: 4px;
-  font-size: 17px;
-  opacity: 0.5;
-  transition: transform 0.2s ease;
-}
-
-.expression-button:hover .arrow {
-  transform: translate(2px, -2px);
-  opacity: 1;
-}
-
 .intensity-control {
   margin-top: 24px;
 }
@@ -743,10 +730,21 @@ a {
   min-width: 100%;
   color: #f7f7f3;
   font:
-    600 12px / 1.55 ui-monospace,
-    SFMono-Regular,
-    Consolas,
+    400 15px / 1.7 Consolas,
+    "Courier New",
     monospace;
+}
+
+.studio-code-block[data-language="shell"] code {
+  width: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.studio-code-block[data-language="tsx"] code {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 17px;
+  line-height: 1.7;
 }
 
 .install-card li code,
@@ -957,7 +955,11 @@ footer p {
     padding: 22px 18px;
   }
   .studio-code-block code {
-    font-size: 10px;
+    font-size: 14px;
+  }
+
+  .studio-code-block[data-language="tsx"] code {
+    font-size: 14px;
   }
   .usage-example {
     grid-template-columns: 1fr;
