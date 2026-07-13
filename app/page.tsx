@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import AvatarStudio from "./AvatarStudio";
 
 export const metadata: Metadata = {
-  title: "Mimo — Multi-character Expression Avatar",
+  title: "Mimo — Sage Expression Avatar",
   description:
-    "Five animated characters with event-driven expressions and fluid transitions.",
+    "A friendly illustrated wizard with eight event-driven animated expressions.",
 };
 
 export default function Home() {

@@ -1,13 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-  characterIds,
-  characters,
-  isCharacter,
-  type Character,
-  type CharacterId,
-} from "./characters";
+import SpriteAvatar, {
+  expressionIds,
+  isExpression,
+  sageCharacter,
+  type ExpressionId,
+} from "./SpriteAvatar";
 
 const expressions = [
   { id: "idle", label: "Idle", symbol: "✦", event: "SYSTEM_READY", color: "#c8ff4d" },
@@ -20,116 +19,18 @@ const expressions = [
   { id: "sleepy", label: "Sleepy", symbol: "z", event: "INACTIVE", color: "#a9b4cc" },
 ] as const;
 
-type ExpressionId = (typeof expressions)[number]["id"];
-
 declare global {
   interface Window {
     avatarController?: {
       setExpression: (expression: ExpressionId) => void;
-      setCharacter: (character: CharacterId) => void;
-      setState: (state: { expression?: ExpressionId; character?: CharacterId }) => void;
+      setState: (state: { expression?: ExpressionId }) => void;
       expressions: readonly ExpressionId[];
-      characters: readonly CharacterId[];
     };
   }
 }
 
-const expressionIds = expressions.map((item) => item.id);
-
-function isExpression(value: unknown): value is ExpressionId {
-  return typeof value === "string" && expressionIds.includes(value as ExpressionId);
-}
-
-function Avatar({
-  expression,
-  intensity,
-  character,
-}: {
-  expression: ExpressionId;
-  intensity: number;
-  character: Character;
-}) {
-  const characterStyle = {
-    "--intensity": intensity,
-    "--skin": character.skin,
-    "--skin-shadow": character.skinShadow,
-    "--hair": character.hair,
-    "--character-accent": character.accent,
-    "--eye-color": character.eye,
-    "--cheek-color": character.cheek,
-  } as React.CSSProperties;
-
-  const sceneEffects = (
-    <>
-      <div className="orbit orbit-one" aria-hidden="true" />
-      <div className="orbit orbit-two" aria-hidden="true" />
-      <div className="signal signal-left" aria-hidden="true"><i /><i /><i /></div>
-      <div className="signal signal-right" aria-hidden="true"><i /><i /><i /></div>
-      <div className="thoughts" aria-hidden="true"><i /><i /><i /></div>
-      <div className="sleep-notes" aria-hidden="true"><span>z</span><span>z</span><span>z</span></div>
-    </>
-  );
-
-  return (
-    <div
-      className="avatar-scene"
-      data-expression={expression}
-      data-character={character.id}
-      data-character-shape={character.shape}
-      style={characterStyle}
-      aria-label={`${character.label} is ${expression}`}
-      role="img"
-    >
-      {sceneEffects}
-      {character.renderer === "sprite" ? (
-        <div className="sprite-rig">
-          <div className="sprite-shadow" aria-hidden="true" />
-          {expressionIds.map((spriteExpression) => (
-            <img
-              key={spriteExpression}
-              className={`expression-sprite ${spriteExpression === expression ? "active" : ""}`}
-              src={`${character.spritePath}/${spriteExpression}.webp`}
-              alt=""
-              aria-hidden="true"
-              draggable={false}
-            />
-          ))}
-        </div>
-      ) : (
-        <div className="avatar-rig">
-        <div className="character-details" aria-hidden="true">
-          <span className="detail detail-one" />
-          <span className="detail detail-two" />
-          <span className="detail detail-three" />
-        </div>
-        <div className="avatar-shadow" />
-        <div className="torso">
-          <div className="collar-dot" />
-        </div>
-        <div className="ear ear-left"><span /></div>
-        <div className="ear ear-right"><span /></div>
-        <div className="head">
-          <div className="head-shine" />
-          <div className="facial-hair" aria-hidden="true" />
-          <div className="brow brow-left" />
-          <div className="brow brow-right" />
-          <div className="eye eye-left"><span className="pupil"><i /></span></div>
-          <div className="eye eye-right"><span className="pupil"><i /></span></div>
-          <div className="glasses" aria-hidden="true"><i /><i /></div>
-          <div className="cheek cheek-left" />
-          <div className="cheek cheek-right" />
-          <div className="nose" />
-          <div className="mouth"><span /></div>
-        </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
 export default function AvatarStudio() {
   const [expression, setExpression] = useState<ExpressionId>("idle");
-  const [characterId, setCharacterId] = useState<CharacterId>("mimo");
   const [intensity, setIntensity] = useState(1);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [autoPlay, setAutoPlay] = useState(false);
@@ -140,10 +41,6 @@ export default function AvatarStudio() {
     () => expressions.find((item) => item.id === expression) ?? expressions[0],
     [expression],
   );
-  const activeCharacter = useMemo(
-    () => characters.find((item) => item.id === characterId) ?? characters[0],
-    [characterId],
-  );
 
   const beginTransition = useCallback(() => {
     if (transitionTimer.current) clearTimeout(transitionTimer.current);
@@ -151,23 +48,15 @@ export default function AvatarStudio() {
     transitionTimer.current = setTimeout(() => setIsTransitioning(false), 520);
   }, []);
 
-  const applyAvatarState = useCallback((next: {
-    expression?: ExpressionId;
-    character?: CharacterId;
-  }) => {
-    if (!next.expression && !next.character) return;
+  const applyAvatarState = useCallback((next: { expression?: ExpressionId }) => {
+    if (!next.expression) return;
     beginTransition();
-    if (next.expression) setExpression(next.expression);
-    if (next.character) setCharacterId(next.character);
+    setExpression(next.expression);
     setEventCount((count) => count + 1);
   }, [beginTransition]);
 
   const triggerExpression = useCallback((next: ExpressionId) => {
     applyAvatarState({ expression: next });
-  }, [applyAvatarState]);
-
-  const triggerCharacter = useCallback((next: CharacterId) => {
-    applyAvatarState({ character: next });
   }, [applyAvatarState]);
 
   useEffect(() => {
@@ -177,10 +66,9 @@ export default function AvatarStudio() {
         return;
       }
       if (typeof value !== "object" || value === null) return;
-      const payload = value as { expression?: unknown; character?: unknown };
+      const payload = value as { expression?: unknown };
       applyAvatarState({
         expression: isExpression(payload.expression) ? payload.expression : undefined,
-        character: isCharacter(payload.character) ? payload.character : undefined,
       });
     };
 
@@ -199,10 +87,8 @@ export default function AvatarStudio() {
 
     window.avatarController = {
       setExpression: triggerExpression,
-      setCharacter: triggerCharacter,
       setState: applyAvatarState,
       expressions: expressionIds,
-      characters: characterIds,
     };
     window.addEventListener("avatar:expression", onCustomEvent);
     window.addEventListener("avatar:state", onCustomEvent);
@@ -215,7 +101,7 @@ export default function AvatarStudio() {
       delete window.avatarController;
       if (transitionTimer.current) clearTimeout(transitionTimer.current);
     };
-  }, [applyAvatarState, triggerCharacter, triggerExpression]);
+  }, [applyAvatarState, triggerExpression]);
 
   useEffect(() => {
     if (!autoPlay) return;
@@ -244,16 +130,16 @@ export default function AvatarStudio() {
 
       <section className="hero" id="top">
         <div className="hero-copy">
-          <p className="eyebrow"><span>01</span> MODULAR CHARACTER SYSTEM</p>
-          <h1>MANY FACES.<br /><em>EVERY FEELING.</em></h1>
+          <p className="eyebrow"><span>01</span> ILLUSTRATED AVATAR ENGINE</p>
+          <h1>ONE WIZARD.<br /><em>EVERY FEELING.</em></h1>
           <p className="intro">
-            Choose a character, then turn incoming events into expressive motion. Identity
-            and emotion are separate states, so your app can switch either one at any time.
+            Turn incoming events into expressive motion with Sage, a friendly illustrated
+            wizard built from a consistent set of high-resolution animated states.
           </p>
         </div>
         <div className="hero-note" aria-hidden="true">
-          <span>5×8</span>
-          <p>characters ×<br />expressions</p>
+          <span>1×8</span>
+          <p>avatar ×<br />expressions</p>
         </div>
       </section>
 
@@ -262,14 +148,18 @@ export default function AvatarStudio() {
           className="stage-panel"
           style={{
             "--accent": activeExpression.color,
-            "--stage": activeCharacter.stage,
+            "--stage": sageCharacter.stage,
           } as React.CSSProperties}
         >
           <div className="panel-heading">
-            <span>LIVE AVATAR · {activeCharacter.label.toUpperCase()}</span>
+            <span>LIVE AVATAR · SAGE</span>
             <span className="coordinates">EVENT #{String(eventCount).padStart(3, "0")}</span>
           </div>
-          <Avatar expression={expression} intensity={intensity} character={activeCharacter} />
+          <SpriteAvatar
+            expression={expression}
+            intensity={intensity}
+            transitioning={isTransitioning}
+          />
           <div className="now-playing">
             <div>
               <span className="event-dot" />
@@ -281,44 +171,6 @@ export default function AvatarStudio() {
         </div>
 
         <aside className="control-panel" aria-label="Avatar controls">
-          <section className="character-picker" aria-labelledby="character-picker-title">
-            <div className="character-picker-heading">
-              <div>
-                <p>CHARACTER ROSTER</p>
-                <h2 id="character-picker-title">Choose your avatar</h2>
-              </div>
-              <span>
-                {String(characters.findIndex((item) => item.id === characterId) + 1).padStart(2, "0")} / {String(characters.length).padStart(2, "0")}
-              </span>
-            </div>
-            <div className="character-list">
-              {characters.map((item) => (
-                <button
-                  key={item.id}
-                  className={`character-button ${characterId === item.id ? "active" : ""}`}
-                  style={{
-                    "--portrait-stage": item.stage,
-                    "--portrait-skin": item.skin,
-                    "--portrait-accent": item.accent,
-                    "--portrait-hair": item.hair,
-                  } as React.CSSProperties}
-                  onClick={() => triggerCharacter(item.id)}
-                  aria-pressed={characterId === item.id}
-                  data-testid={`character-${item.id}`}
-                >
-                  {item.renderer === "sprite" ? (
-                    <span className="character-portrait character-portrait-sprite" data-shape={item.shape}>
-                      <img src={`${item.spritePath}/idle.webp`} alt="" aria-hidden="true" />
-                    </span>
-                  ) : (
-                    <span className="character-portrait" data-shape={item.shape}><i /></span>
-                  )}
-                  <span className="character-label"><strong>{item.label}</strong><small>{item.kind}</small></span>
-                </button>
-              ))}
-            </div>
-          </section>
-
           <div className="control-heading">
             <div>
               <p>EVENT PANEL</p>
@@ -375,8 +227,7 @@ export default function AvatarStudio() {
             <code>
               <span>window</span>.dispatchEvent(<br />
               &nbsp;&nbsp;new CustomEvent(<b>&quot;avatar:state&quot;</b>, {`{`}<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;detail: {`{`} character: <b>&quot;sage&quot;</b>,<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;expression: <b>&quot;thinking&quot;</b> {`}`}<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;detail: {`{`} expression: <b>&quot;thinking&quot;</b> {`}`}<br />
               &nbsp;&nbsp;{`}`})<br />
               );
             </code>
@@ -386,7 +237,7 @@ export default function AvatarStudio() {
 
       <footer>
         <p>BUILT WITH REACT + CSS MOTION</p>
-        <p>5 CHARACTERS · 8 EXPRESSIONS · ZERO EXTERNAL SERVICES</p>
+        <p>1 ILLUSTRATED AVATAR · 8 EXPRESSIONS · ZERO EXTERNAL SERVICES</p>
       </footer>
     </main>
   );
