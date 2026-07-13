@@ -177,6 +177,7 @@ a {
 
 .stage-panel {
   --accent: var(--lime);
+  --stage: #7657ff;
   min-height: 710px;
   position: relative;
   display: grid;
@@ -185,9 +186,10 @@ a {
   background:
     linear-gradient(rgba(255,255,255,0.11) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255,255,255,0.11) 1px, transparent 1px),
-    #7657ff;
+    var(--stage);
   background-size: 42px 42px;
   border-right: 1px solid var(--ink);
+  transition: background-color 0.5s ease;
 }
 
 .stage-panel::before {
@@ -320,7 +322,8 @@ a {
   z-index: 2;
   border: 3px solid var(--ink);
   border-radius: 50%;
-  background: var(--purple);
+  background: var(--character-accent, var(--purple));
+  transition: background-color 0.45s ease;
 }
 
 .head {
@@ -333,9 +336,9 @@ a {
   overflow: hidden;
   border: 6px solid var(--ink);
   border-radius: 46% 46% 43% 43% / 40% 40% 50% 50%;
-  background: #efe7d5;
+  background: var(--skin, #efe7d5);
   box-shadow: inset -15px -14px 0 rgba(105,77,46,0.08), 0 12px 0 rgba(23,25,31,0.12);
-  transition: border-radius 0.48s cubic-bezier(.2,.8,.2,1), transform 0.48s cubic-bezier(.2,.8,.2,1);
+  transition: width 0.48s cubic-bezier(.2,.8,.2,1), height 0.48s cubic-bezier(.2,.8,.2,1), left 0.48s cubic-bezier(.2,.8,.2,1), top 0.48s cubic-bezier(.2,.8,.2,1), border-radius 0.48s cubic-bezier(.2,.8,.2,1), transform 0.48s cubic-bezier(.2,.8,.2,1), background-color 0.45s ease;
 }
 
 .head::before {
@@ -346,7 +349,8 @@ a {
   left: -16px;
   top: -26px;
   border-radius: 50%;
-  background: var(--ink);
+  background: var(--hair, var(--ink));
+  transition: all 0.45s cubic-bezier(.2,.8,.2,1);
   transform: rotate(-9deg);
 }
 
@@ -358,7 +362,8 @@ a {
   right: -19px;
   top: -23px;
   border-radius: 50%;
-  background: var(--ink);
+  background: var(--hair, var(--ink));
+  transition: all 0.45s cubic-bezier(.2,.8,.2,1);
   transform: rotate(13deg);
 }
 
@@ -380,8 +385,8 @@ a {
   top: 110px;
   z-index: 2;
   border: 5px solid var(--ink);
-  background: #d6ccb8;
-  transition: transform 0.4s ease;
+  background: var(--skin-shadow, #d6ccb8);
+  transition: width 0.4s ease, height 0.4s ease, top 0.4s ease, left 0.4s ease, right 0.4s ease, border-radius 0.4s ease, transform 0.4s ease, background-color 0.4s ease;
 }
 
 .ear span {
@@ -433,7 +438,7 @@ a {
   left: 17px;
   top: 18px;
   border-radius: 50%;
-  background: var(--ink);
+  background: var(--eye-color, var(--ink));
   transition: transform 0.4s cubic-bezier(.2,.9,.2,1);
 }
 
@@ -468,7 +473,7 @@ a {
   top: 178px;
   z-index: 3;
   border-radius: 50%;
-  background: #ff8c83;
+  background: var(--cheek-color, #ff8c83);
   opacity: 0.16;
   filter: blur(1px);
   transform: scale(0.75);
@@ -569,6 +574,209 @@ a {
 .control-panel {
   padding: 32px;
   background: #fbfaf6;
+}
+
+.character-picker {
+  margin-bottom: 28px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--ink);
+}
+
+.character-picker-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 15px;
+}
+
+.character-picker-heading p {
+  margin: 0 0 5px;
+  color: var(--purple);
+  font: 800 10px/1 ui-monospace, SFMono-Regular, Consolas, monospace;
+  letter-spacing: 0.14em;
+}
+
+.character-picker-heading h2 {
+  margin: 0;
+  font-size: 26px;
+  letter-spacing: -0.04em;
+}
+
+.character-picker-heading > span {
+  padding-bottom: 3px;
+  color: rgba(23,25,31,0.52);
+  font: 700 10px/1 ui-monospace, SFMono-Regular, Consolas, monospace;
+  letter-spacing: 0.08em;
+}
+
+.character-list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-top: 1px solid var(--ink);
+  border-left: 1px solid var(--ink);
+}
+
+.character-button {
+  min-width: 0;
+  min-height: 112px;
+  padding: 9px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  border: 0;
+  border-right: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease;
+}
+
+.character-button:hover {
+  background: color-mix(in srgb, var(--portrait-accent) 20%, white);
+}
+
+.character-button:active {
+  transform: scale(0.97);
+}
+
+.character-button.active {
+  background: var(--portrait-accent);
+  box-shadow: inset 0 0 0 3px var(--ink);
+}
+
+.character-portrait {
+  height: 58px;
+  position: relative;
+  overflow: hidden;
+  display: block;
+  border: 1px solid var(--ink);
+  background:
+    linear-gradient(rgba(255,255,255,0.16) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.16) 1px, transparent 1px),
+    var(--portrait-stage);
+  background-size: 12px 12px;
+}
+
+.character-portrait::before {
+  content: "";
+  width: 48px;
+  height: 46px;
+  position: absolute;
+  left: calc(50% - 24px);
+  bottom: -8px;
+  border: 3px solid var(--ink);
+  border-radius: 46% 46% 40% 40%;
+  background: var(--portrait-skin);
+}
+
+.character-portrait::after {
+  content: "••";
+  width: 34px;
+  position: absolute;
+  left: calc(50% - 17px);
+  top: 27px;
+  z-index: 3;
+  color: var(--ink);
+  font: 900 16px/1 Arial, sans-serif;
+  letter-spacing: 7px;
+  text-align: center;
+}
+
+.character-portrait i {
+  width: 38px;
+  height: 18px;
+  position: absolute;
+  left: calc(50% - 19px);
+  top: 12px;
+  z-index: 2;
+  border-radius: 50%;
+  background: var(--portrait-hair);
+}
+
+.character-portrait[data-shape="robot"]::before {
+  height: 41px;
+  bottom: 3px;
+  border-radius: 9px;
+}
+
+.character-portrait[data-shape="robot"] i {
+  width: 14px;
+  height: 14px;
+  left: calc(50% - 7px);
+  top: 5px;
+  border: 3px solid var(--ink);
+  border-radius: 50%;
+  background: var(--portrait-accent);
+}
+
+.character-portrait[data-shape="cat"]::before {
+  width: 46px;
+  height: 43px;
+  left: calc(50% - 23px);
+  border-radius: 48%;
+  clip-path: polygon(0 0, 28% 18%, 72% 18%, 100% 0, 92% 100%, 8% 100%);
+}
+
+.character-portrait[data-shape="cat"] i {
+  width: 30px;
+  height: 12px;
+  left: calc(50% - 15px);
+  top: 16px;
+  transform: rotate(-5deg);
+}
+
+.character-portrait[data-shape="alien"]::before {
+  width: 52px;
+  height: 49px;
+  left: calc(50% - 26px);
+  border-radius: 55% 55% 45% 45%;
+}
+
+.character-portrait[data-shape="alien"] i {
+  width: 3px;
+  height: 18px;
+  left: calc(50% - 1px);
+  top: 3px;
+  border-radius: 0;
+  background: var(--ink);
+}
+
+.character-portrait[data-shape="alien"] i::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  position: absolute;
+  left: -2px;
+  top: -2px;
+  border-radius: 50%;
+  background: var(--portrait-accent);
+}
+
+.character-label {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.character-label strong {
+  overflow: hidden;
+  font-size: 14px;
+  letter-spacing: -0.02em;
+  text-overflow: ellipsis;
+}
+
+.character-label small {
+  overflow: hidden;
+  color: rgba(23,25,31,0.55);
+  font: 700 8px/1 ui-monospace, SFMono-Regular, Consolas, monospace;
+  letter-spacing: 0.08em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
 }
 
 .control-heading {
@@ -757,6 +965,329 @@ a {
 
 .event-recipe code span { color: #8fe6ff; }
 .event-recipe code b { color: var(--lime); font-weight: 600; }
+
+/* Character shapes */
+.character-details {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.detail {
+  position: absolute;
+  display: block;
+  opacity: 0;
+  transition: all 0.45s cubic-bezier(.2,.8,.2,1);
+}
+
+.avatar-scene[data-character-shape="robot"] .head {
+  width: 270px;
+  height: 255px;
+  left: 30px;
+  top: 45px;
+  border-radius: 34px;
+  box-shadow: inset -14px -14px 0 rgba(18,60,72,0.12), 0 12px 0 rgba(23,25,31,0.12);
+}
+
+.avatar-scene[data-character-shape="robot"] .head::before {
+  width: 104px;
+  height: 17px;
+  left: 77px;
+  top: 19px;
+  border: 3px solid var(--ink);
+  border-radius: 99px;
+  background: var(--character-accent);
+  transform: none;
+}
+
+.avatar-scene[data-character-shape="robot"] .head::after {
+  width: 176px;
+  height: 9px;
+  left: 41px;
+  right: auto;
+  top: 58px;
+  border-radius: 99px;
+  background: var(--hair);
+  opacity: 0.16;
+  transform: none;
+}
+
+.avatar-scene[data-character-shape="robot"] .ear {
+  width: 56px;
+  height: 76px;
+  top: 129px;
+  border-radius: 13px;
+  background: var(--character-accent);
+}
+
+.avatar-scene[data-character-shape="robot"] .ear-left {
+  left: 2px;
+  transform: rotate(0);
+}
+
+.avatar-scene[data-character-shape="robot"] .ear-right {
+  right: 2px;
+  transform: rotate(0);
+}
+
+.avatar-scene[data-character-shape="robot"] .ear span {
+  width: 19px;
+  height: 19px;
+  top: 23px;
+  border-radius: 4px;
+  background: var(--skin);
+}
+
+.avatar-scene[data-character-shape="robot"] .ear-left span { left: 13px; }
+.avatar-scene[data-character-shape="robot"] .ear-right span { right: 13px; }
+
+.avatar-scene[data-character-shape="robot"] .eye {
+  width: 62px;
+  height: 57px;
+  top: 113px;
+  border-radius: 15px;
+  background: #f7ffff;
+}
+
+.avatar-scene[data-character-shape="robot"] .eye-left { left: 48px; }
+.avatar-scene[data-character-shape="robot"] .eye-right { right: 48px; }
+
+.avatar-scene[data-character-shape="robot"] .pupil {
+  width: 25px;
+  height: 29px;
+  border-radius: 6px;
+  background: var(--eye-color);
+}
+
+.avatar-scene[data-character-shape="robot"] .nose {
+  width: 11px;
+  height: 11px;
+  top: 178px;
+  border-radius: 3px;
+  background: var(--character-accent);
+}
+
+.avatar-scene[data-character-shape="robot"] .detail-one {
+  width: 6px;
+  height: 53px;
+  left: 162px;
+  top: 1px;
+  border: 2px solid var(--ink);
+  border-radius: 99px;
+  background: var(--skin-shadow);
+  opacity: 1;
+}
+
+.avatar-scene[data-character-shape="robot"] .detail-one::after {
+  content: "";
+  width: 21px;
+  height: 21px;
+  position: absolute;
+  left: -10px;
+  top: -14px;
+  border: 4px solid var(--ink);
+  border-radius: 50%;
+  background: var(--character-accent);
+  animation: statusPulse calc(1.7s / var(--intensity)) ease-in-out infinite;
+}
+
+.avatar-scene[data-character-shape="cat"] .head {
+  width: 286px;
+  height: 275px;
+  left: 22px;
+  top: 28px;
+  border-radius: 48% 48% 43% 43% / 46% 46% 50% 50%;
+}
+
+.avatar-scene[data-character-shape="cat"] .head::before {
+  width: 128px;
+  height: 70px;
+  left: 75px;
+  top: -28px;
+  transform: rotate(-5deg);
+}
+
+.avatar-scene[data-character-shape="cat"] .head::after {
+  width: 53px;
+  height: 45px;
+  right: 29px;
+  top: 5px;
+  background: var(--character-accent);
+  opacity: 0.78;
+  transform: rotate(18deg);
+}
+
+.avatar-scene[data-character-shape="cat"] .ear {
+  width: 88px;
+  height: 88px;
+  top: 58px;
+  border-radius: 14px 14px 34px 14px;
+  background: var(--skin);
+}
+
+.avatar-scene[data-character-shape="cat"] .ear-left {
+  left: 12px;
+  transform: rotate(45deg);
+}
+
+.avatar-scene[data-character-shape="cat"] .ear-right {
+  right: 12px;
+  transform: rotate(45deg);
+}
+
+.avatar-scene[data-character-shape="cat"] .ear span {
+  width: 43px;
+  height: 43px;
+  top: 16px;
+  border: 0;
+  border-radius: 9px 9px 20px 9px;
+  background: var(--cheek-color);
+  opacity: 0.5;
+}
+
+.avatar-scene[data-character-shape="cat"] .ear-left span { left: 15px; }
+.avatar-scene[data-character-shape="cat"] .ear-right span { right: 15px; }
+
+.avatar-scene[data-character-shape="cat"] .pupil {
+  width: 13px;
+  left: 23px;
+  border-radius: 50%;
+}
+
+.avatar-scene[data-character-shape="cat"] .nose {
+  width: 17px;
+  height: 12px;
+  left: calc(50% - 8px);
+  border-radius: 50% 50% 65% 65%;
+  background: var(--hair);
+}
+
+.avatar-scene[data-character-shape="cat"] .detail-one,
+.avatar-scene[data-character-shape="cat"] .detail-two {
+  width: 82px;
+  height: 3px;
+  top: 203px;
+  border-radius: 99px;
+  background: var(--ink);
+  opacity: 0.65;
+}
+
+.avatar-scene[data-character-shape="cat"] .detail-one {
+  left: -1px;
+  transform: rotate(6deg);
+}
+
+.avatar-scene[data-character-shape="cat"] .detail-two {
+  right: -1px;
+  transform: rotate(-6deg);
+}
+
+.avatar-scene[data-character-shape="cat"] .detail-one::after,
+.avatar-scene[data-character-shape="cat"] .detail-two::after {
+  content: "";
+  width: 75px;
+  height: 3px;
+  position: absolute;
+  top: 13px;
+  border-radius: 99px;
+  background: var(--ink);
+}
+
+.avatar-scene[data-character-shape="alien"] .head {
+  width: 304px;
+  height: 298px;
+  left: 13px;
+  top: 13px;
+  border-radius: 53% 53% 44% 44% / 48% 48% 52% 52%;
+}
+
+.avatar-scene[data-character-shape="alien"] .head::before,
+.avatar-scene[data-character-shape="alien"] .head::after {
+  opacity: 0;
+  transform: scale(0.3);
+}
+
+.avatar-scene[data-character-shape="alien"] .ear {
+  width: 66px;
+  height: 86px;
+  top: 121px;
+  background: var(--skin-shadow);
+}
+
+.avatar-scene[data-character-shape="alien"] .ear-left {
+  left: -3px;
+  border-radius: 80% 20% 65% 35%;
+  transform: rotate(-18deg);
+}
+
+.avatar-scene[data-character-shape="alien"] .ear-right {
+  right: -3px;
+  border-radius: 20% 80% 35% 65%;
+  transform: rotate(18deg);
+}
+
+.avatar-scene[data-character-shape="alien"] .ear span {
+  display: none;
+}
+
+.avatar-scene[data-character-shape="alien"] .eye {
+  width: 72px;
+  height: 82px;
+  top: 100px;
+  border-radius: 54% 54% 48% 48%;
+  background: #f7ffef;
+}
+
+.avatar-scene[data-character-shape="alien"] .eye-left { left: 52px; transform: rotate(-8deg); }
+.avatar-scene[data-character-shape="alien"] .eye-right { right: 52px; transform: rotate(8deg); }
+
+.avatar-scene[data-character-shape="alien"] .pupil {
+  width: 34px;
+  height: 50px;
+  left: 16px;
+  top: 18px;
+  background: var(--eye-color);
+}
+
+.avatar-scene[data-character-shape="alien"] .nose {
+  opacity: 0;
+}
+
+.avatar-scene[data-character-shape="alien"] .detail-one,
+.avatar-scene[data-character-shape="alien"] .detail-two {
+  width: 6px;
+  height: 58px;
+  top: -2px;
+  border: 2px solid var(--ink);
+  border-radius: 99px;
+  background: var(--skin);
+  opacity: 1;
+  transform-origin: bottom;
+}
+
+.avatar-scene[data-character-shape="alien"] .detail-one {
+  left: 112px;
+  transform: rotate(-19deg);
+}
+
+.avatar-scene[data-character-shape="alien"] .detail-two {
+  right: 112px;
+  transform: rotate(19deg);
+}
+
+.avatar-scene[data-character-shape="alien"] .detail-one::after,
+.avatar-scene[data-character-shape="alien"] .detail-two::after {
+  content: "";
+  width: 18px;
+  height: 18px;
+  position: absolute;
+  left: -8px;
+  top: -10px;
+  border: 4px solid var(--ink);
+  border-radius: 50%;
+  background: var(--character-accent);
+}
 
 footer {
   width: min(1440px, calc(100% - 48px));

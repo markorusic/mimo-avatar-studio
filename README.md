@@ -1,7 +1,7 @@
 # Mimo animated avatar
 
-Mimo is a self-contained animated avatar with eight expressions, smooth CSS
-transitions, button controls, adjustable motion intensity, and a looping demo.
+Mimo is a self-contained avatar engine with four selectable characters, eight
+expressions, smooth CSS transitions, adjustable motion, and a looping demo.
 It uses React and CSS only—there are no external assets, accounts, API keys, or
 runtime services.
 
@@ -14,14 +14,14 @@ npm run dev
 
 Open `http://localhost:3000`.
 
-## Send expression events
+## Send avatar events
 
 The avatar listens for a browser `CustomEvent`:
 
 ```js
 window.dispatchEvent(
-  new CustomEvent("avatar:expression", {
-    detail: { expression: "happy" },
+  new CustomEvent("avatar:state", {
+    detail: { character: "nova", expression: "happy" },
   }),
 );
 ```
@@ -30,15 +30,18 @@ It also accepts same-window messages:
 
 ```js
 window.postMessage(
-  { type: "avatar:expression", expression: "thinking" },
+  { type: "avatar:state", character: "pip", expression: "thinking" },
   "*",
 );
 ```
 
-Available values are `idle`, `happy`, `listening`, `thinking`, `surprised`,
-`sad`, `angry`, and `sleepy`.
+Available characters are `mimo`, `nova`, `pip`, and `moss`. Available
+expressions are `idle`, `happy`, `listening`, `thinking`, `surprised`, `sad`,
+`angry`, and `sleepy`.
 
-For direct control, call `window.avatarController.setExpression("happy")`.
+For direct control, call `window.avatarController.setCharacter("nova")`,
+`setExpression("happy")`, or `setState({ character: "nova", expression:
+"happy" })`.
 
 ## Checks
 

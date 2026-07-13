@@ -19,11 +19,15 @@ test("server-renders the Mimo expression studio", async () => {
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
-  assert.match(html, /<title>Mimo — Animated Expression Avatar<\/title>/i);
-  assert.match(html, /ONE FACE/);
+  assert.match(html, /<title>Mimo — Multi-character Expression Avatar<\/title>/i);
+  assert.match(html, /MANY FACES/);
   assert.match(html, /EVERY FEELING/);
+  assert.match(html, /Choose your avatar/);
+  assert.match(html, /character-nova/);
+  assert.match(html, /character-pip/);
+  assert.match(html, /character-moss/);
   assert.match(html, /Send an expression/);
   assert.match(html, /expression-happy/);
-  assert.match(html, /og\.png/);
+  assert.match(html, /og-characters\.png/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton/i);
 });

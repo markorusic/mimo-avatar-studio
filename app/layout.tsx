@@ -9,26 +9,26 @@ export async function generateMetadata(): Promise<Metadata> {
   const origin = `${protocol}://${host}`;
 
   return {
-    title: "Mimo — Animated Expression Avatar",
+    title: "Mimo — Multi-character Expression Avatar",
     description:
-      "A playful animated avatar with event-driven expressions and fluid transitions.",
+      "Four animated characters with event-driven expressions and fluid transitions.",
     metadataBase: new URL(origin),
     icons: {
       icon: "/favicon.svg",
       shortcut: "/favicon.svg",
     },
     openGraph: {
-      title: "Mimo — One face. Every feeling.",
-      description: "An animated avatar with event-driven expressions and fluid transitions.",
+      title: "Mimo — Many faces. Every feeling.",
+      description: "Four animated characters with event-driven expressions and fluid transitions.",
       type: "website",
       url: origin,
-      images: [{ url: `${origin}/og.png`, width: 1672, height: 941, alt: "Mimo animated expression avatar" }],
+      images: [{ url: `${origin}/og-characters.png`, width: 1672, height: 941, alt: "Four Mimo animated characters" }],
     },
     twitter: {
       card: "summary_large_image",
-      title: "Mimo — One face. Every feeling.",
-      description: "An animated avatar with event-driven expressions and fluid transitions.",
-      images: [`${origin}/og.png`],
+      title: "Mimo — Many faces. Every feeling.",
+      description: "Four animated characters with event-driven expressions and fluid transitions.",
+      images: [`${origin}/og-characters.png`],
     },
   };
 }
