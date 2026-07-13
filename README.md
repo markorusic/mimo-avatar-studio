@@ -159,9 +159,25 @@ The reusable component remains character-agnostic. The Studio and canvas use
 the full internal catalog, while the installer copies only the explicitly
 selected character module and sprite folder.
 
-## Send events to the demo
+## Studio event adapter
 
-The demo includes an event adapter around the controlled React component:
+`MimoGuide` is a controlled React component and does not install a global event
+listener. In a normal consumer app, keep the installed character fixed and
+update its `expression` prop through React state.
+
+The Studio includes an optional event adapter for testing integrations. Its
+primary event changes only the current guide's expression:
+
+```js
+window.dispatchEvent(
+  new CustomEvent("mimo-guide:expression", {
+    detail: { expression: "thinking" },
+  }),
+);
+```
+
+Only multi-character hosts such as the Studio need `mimo-guide:state` with a
+`character` field:
 
 ```js
 window.dispatchEvent(
@@ -171,10 +187,9 @@ window.dispatchEvent(
 );
 ```
 
-It also supports `window.postMessage({ type: "mimo-guide:state", character:
-"socrates", expression: "thinking" }, "*")`,
-`window.mimoGuideController.setCharacter("leonardo")`, and
-`window.mimoGuideController.setExpression("happy")`.
+The Studio also supports `window.mimoGuideController.setExpression("happy")`.
+Its `setCharacter("leonardo")` and `setState(...)` methods are optional
+multi-character controls, not requirements of the reusable component.
 
 ## Checks
 

@@ -401,16 +401,15 @@ import guideCharacter from "@/components/mimo-guide/characters/${activeCharacter
 
           <div className="event-recipe">
             <div className="recipe-top">
-              <span>TRIGGER FROM YOUR APP</span>
+              <span>STUDIO EVENT ADAPTER</span>
               <span className="language">JS</span>
             </div>
             <code>
               <span>window</span>.dispatchEvent(
               <br />
-              &nbsp;&nbsp;new CustomEvent(<b>&quot;mimo-guide:state&quot;</b>, {`{`}
+              &nbsp;&nbsp;new CustomEvent(<b>&quot;mimo-guide:expression&quot;</b>, {`{`}
               <br />
-              &nbsp;&nbsp;&nbsp;&nbsp;detail: {`{`} character: <b>&quot;tesla&quot;</b>, expression:{" "}
-              <b>&quot;thinking&quot;</b> {`}`}
+              &nbsp;&nbsp;&nbsp;&nbsp;detail: {`{`} expression: <b>&quot;thinking&quot;</b> {`}`}
               <br />
               &nbsp;&nbsp;{`}`})<br />
               );

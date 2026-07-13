@@ -24,6 +24,8 @@ test("prerenders the Studio with public installation docs", async () => {
   assert.match(html, /syntax-command/);
   assert.match(html, /syntax-keyword/);
   assert.match(html, /syntax-string/);
+  assert.match(html, /STUDIO EVENT ADAPTER/);
+  assert.match(html, /mimo-guide:expression/);
   assert.match(html, /github:markorusic\/mimo-avatar-studio/);
   assert.match(html, /href="\/canvas"/);
   assert.match(html, /og-wizard\.png/);

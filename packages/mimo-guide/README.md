@@ -29,3 +29,11 @@ For manual installation, copy the four core files in `src/`, one file from
 To author a character, add `src/characters/<id>.ts`, export it from
 `src/characters/index.ts`, and place its eight named expression sprites in
 `assets/<id>/`. The installer discovers selectable characters from those asset folders.
+
+## State and events
+
+`MimoGuide` is a controlled React component. It does not register window events:
+pass the installed character to `character` and drive `expression` with your
+app's React state. The Studio's `mimo-guide:expression` event is an optional
+demo adapter. A `character` field is only useful in a custom host that has
+installed multiple character packs and intentionally supports switching them.
