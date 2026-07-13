@@ -171,19 +171,120 @@ properties prefixed with `--mimo-guide-`, and keyframes prefixed with
 
 ## Add another character
 
-Character additions are data-driven:
+The reusable `MimoGuide` component is character-agnostic, so a new character
+does not require component or animation changes. Character authoring consists
+of one illustrated sprite set, one small configuration module, and one registry
+entry.
 
-1. Add `packages/mimo-guide/src/characters/<id>.ts` with its label, role,
-   stage/accent colors, and `/mimo-guides/<id>` asset path.
-2. Add the eight expression files to `packages/mimo-guide/assets/<id>/` using
-   the existing expression names.
-3. Mirror that folder to `public/mimo-guides/<id>/` for this Studio repository.
-4. Export it from `packages/mimo-guide/src/characters/index.ts` so it appears in
-   the Studio and canvas catalogs.
+### 1. Create the expression artwork
 
-The reusable component remains character-agnostic. The Studio and canvas use
-the full internal catalog, while the installer copies only the explicitly
-selected character module and sprite folder.
+Create eight transparent WebP files with these exact names:
+
+```text
+idle.webp
+happy.webp
+listening.webp
+thinking.webp
+surprised.webp
+sad.webp
+angry.webp
+sleepy.webp
+```
+
+Keep the canvas dimensions, character scale, center point, and framing identical
+across all eight images. Expression transitions crossfade sprites in the same
+position, so inconsistent framing will look like the character jumps.
+
+Choose a lowercase kebab-case ID for the character, such as `einstein`, and add
+the distributable artwork here:
+
+```text
+packages/mimo-guide/assets/einstein/*.webp
+```
+
+Mirror the same files into the Studio's public assets:
+
+```text
+public/mimo-guides/einstein/*.webp
+```
+
+The two folders must remain byte-for-byte identical. The package folder is what
+the installer ships to consumer projects; the public folder is what this Studio
+and canvas demo render.
+
+### 2. Add the character configuration
+
+Create `packages/mimo-guide/src/characters/einstein.ts`:
+
+```ts
+import type { GuideCharacter } from "../guide-character";
+
+const einsteinCharacter = {
+  id: "einstein",
+  label: "Albert Einstein",
+  role: "Playful physicist",
+  assetPath: "/mimo-guides/einstein",
+  assetExtension: "webp",
+  stage: "#445577",
+  accent: "#ffd166",
+} as const satisfies GuideCharacter;
+
+export default einsteinCharacter;
+```
+
+`stage` controls the Studio presentation color and `accent` controls highlights
+and canvas theming. The `id`, module filename, asset folder, and final segment of
+`assetPath` must match.
+
+### 3. Register the character
+
+Import the module in `packages/mimo-guide/src/characters/index.ts`, export it,
+and add it to `guideCharacters`:
+
+```ts
+import einsteinCharacter from "./einstein";
+
+export { einsteinCharacter };
+
+export const guideCharacters = [
+  // existing characters...
+  einsteinCharacter,
+] as const;
+```
+
+That registry entry automatically adds the character to the Studio roster, the
+canvas selector, event validation, and the Studio's generated install example.
+The installer discovers selectable IDs from `packages/mimo-guide/assets`, so it
+will also accept:
+
+```bash
+npx --yes github:markorusic/mimo-avatar-studio add . --character einstein
+```
+
+The installer copies only `einstein.ts`, Einstein's eight sprites, and the shared
+component core. It does not copy the other character packs.
+
+### 4. Update repository bookkeeping
+
+Until the remaining counts and test fixtures are registry-derived, update:
+
+- The character arrays in `tests/rendered-html.test.mjs`.
+- The expected installer list in `tests/installer.test.mjs`.
+- The available-character list in this README.
+- Character-count copy in `src/routes/__root.tsx` and
+  `src/components/GuideStudio.tsx`.
+
+Then validate the complete authoring path:
+
+```bash
+npm run check
+npm run typecheck
+npm test
+npm run guide:add -- /path/to/test-react-app --character einstein --dry-run
+```
+
+The test suite verifies that every registered expression exists and that the
+Studio and distributable sprite folders are identical.
 
 ## Studio event adapter
 

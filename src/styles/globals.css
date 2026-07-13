@@ -442,7 +442,7 @@ a {
 
 .expression-symbol {
   width: 42px;
-  height: 34px;
+  height: 42px;
   display: grid;
   place-items: center;
   border-radius: 50%;
@@ -924,7 +924,7 @@ footer p {
   }
   .expression-symbol {
     width: 35px;
-    height: 30px;
+    height: 35px;
     font-size: 18px;
   }
   .expression-name {

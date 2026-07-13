@@ -596,7 +596,7 @@
   transform: translateY(0);
 }
 
-.mimo-guide-helper {
+.sage-helper .mimo-guide-helper {
   position: absolute;
   right: 0;
   bottom: 0;
@@ -693,7 +693,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .mimo-guide-helper {
+  .sage-helper .mimo-guide-helper {
     animation: none;
   }
 }

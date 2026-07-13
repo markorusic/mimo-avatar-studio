@@ -26,9 +26,26 @@ dry-run, and custom target options.
 For manual installation, copy the four core files in `src/`, one file from
 `src/characters/`, and its matching folder from `assets/`.
 
-To author a character, add `src/characters/<id>.ts`, export it from
-`src/characters/index.ts`, and place its eight named expression sprites in
-`assets/<id>/`. The installer discovers selectable characters from those asset folders.
+## Author a character
+
+Character authoring does not require changes to `MimoGuide`:
+
+1. Choose a lowercase kebab-case ID.
+2. Add transparent, consistently framed `idle.webp`, `happy.webp`,
+   `listening.webp`, `thinking.webp`, `surprised.webp`, `sad.webp`,
+   `angry.webp`, and `sleepy.webp` files to `assets/<id>/`.
+3. Add `src/characters/<id>.ts` with matching `id`, `assetPath`, label, role,
+   stage color, and accent color.
+4. Export the module from `src/characters/index.ts` and add it to
+   `guideCharacters` for multi-character hosts such as the Studio.
+
+The installer discovers selectable IDs from the folders in `assets/`, requires
+the matching character module, and copies only the selected module and its eight
+sprites. In the Studio repository, mirror the sprite folder to
+`public/mimo-guides/<id>/` and keep both copies byte-for-byte identical.
+
+See the root README's **Add another character** section for the complete example,
+repository bookkeeping, and validation commands.
 
 ## State and events
 
