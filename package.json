@@ -15,9 +15,6 @@
     "LICENSE",
     "README.md"
   ],
-  "engines": {
-    "node": ">=22.13.0"
-  },
   "overrides": {
     "next": {
       "postcss": "8.5.19"
