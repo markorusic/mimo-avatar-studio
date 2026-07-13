@@ -586,7 +586,7 @@ a {
 .install-grid {
   margin-top: 42px;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
   gap: 18px;
 }
 
@@ -730,21 +730,15 @@ a {
   min-width: 100%;
   color: #f7f7f3;
   font:
-    400 15px / 1.7 Consolas,
+    400 15px / 1.7 ui-monospace,
+    SFMono-Regular,
+    Consolas,
     "Courier New",
     monospace;
 }
 
 .studio-code-block[data-language="shell"] code {
-  width: auto;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
-
-.studio-code-block[data-language="tsx"] code {
-  font-family: "Courier New", Courier, monospace;
-  font-size: 17px;
-  line-height: 1.7;
+  white-space: pre;
 }
 
 .install-card li code,
@@ -827,7 +821,7 @@ a {
   gap: 7px;
 }
 
-.usage-example span {
+.usage-example > div > span {
   font:
     750 9px / 1 ui-monospace,
     SFMono-Regular,
@@ -958,9 +952,6 @@ footer p {
     font-size: 14px;
   }
 
-  .studio-code-block[data-language="tsx"] code {
-    font-size: 14px;
-  }
   .usage-example {
     grid-template-columns: 1fr;
     padding: 20px 18px;

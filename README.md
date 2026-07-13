@@ -5,6 +5,10 @@ Socrates, Nikola Tesla, and Leonardo da Vinci with eight animated expressions
 each. This repository contains the expression Studio, the interactive canvas
 integration example, and the copy-owned component kit.
 
+The Studio runs on TanStack Start with file-based TanStack Router routes, Vite,
+Tailwind CSS, and Nitro. Nitro prerenders the Studio and canvas while keeping the
+project ready for server routes and server functions later.
+
 - Studio: `/`
 - Canvas example: `/canvas`
 - Portable kit: `packages/mimo-guide`
@@ -17,6 +21,28 @@ npm run dev
 ```
 
 Open `http://localhost:3000`.
+
+Create and preview the production build locally:
+
+```bash
+npm run build
+npm start
+```
+
+## Deploy the Studio
+
+The repository is configured for Vercel's `tanstack-start` framework preset.
+TanStack Start builds through Vite, and Nitro automatically selects its Vercel
+output when `npm run build` runs inside Vercel.
+
+```bash
+vercel
+vercel --prod
+```
+
+The committed `vercel.json` also overrides stale dashboard framework detection,
+so an existing project previously configured for Next.js still builds as
+TanStack Start.
 
 ## Add Mimo Guide to another React or shadcn project
 

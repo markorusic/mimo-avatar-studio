@@ -13,9 +13,10 @@
 # testing
 /coverage
 
-# next.js / vercel
+# TanStack Start / Vite / Vercel
 /.next/
-/out/
+/.output/
+/dist/
 
 # misc
 .DS_Store
@@ -35,6 +36,5 @@ yarn-error.log*
 /.next-dev.*.log
 
 # typescript
-next-env.d.ts
 /outputs/
 /work/

@@ -1,20 +1,18 @@
-"use client";
-
+import { Link } from "@tanstack/react-router";
 import { Check, Copy } from "lucide-react";
-import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   type GuideExpression,
   guideExpressions,
   isGuideExpression,
   MimoGuide,
-} from "../packages/mimo-guide/src";
+} from "../../packages/mimo-guide/src";
 import {
   type GuideCharacterId,
   getGuideCharacter,
   guideCharacters,
   isGuideCharacterId,
-} from "../packages/mimo-guide/src/characters";
+} from "../../packages/mimo-guide/src/characters";
 
 const expressions = [
   { id: "idle", label: "Idle", symbol: "✦", event: "SYSTEM_READY", color: "#c8ff4d" },
@@ -267,14 +265,14 @@ import guideCharacter from "@/components/mimo-guide/characters/${activeCharacter
   return (
     <main className="site-shell">
       <header className="topbar">
-        <Link className="brand" href="/" aria-label="Mimo home">
+        <Link className="brand" to="/" aria-label="Mimo home">
           <span className="brand-mark">M</span>
           <span>MIMO</span>
           <small>EXPRESSION ENGINE</small>
         </Link>
         <nav className="site-nav" aria-label="Main navigation">
           <a href="#studio">Studio</a>
-          <Link href="/canvas">Canvas demo</Link>
+          <Link to="/canvas">Canvas demo</Link>
           <a href="#install">Install</a>
           <a
             href="https://github.com/markorusic/mimo-avatar-studio"

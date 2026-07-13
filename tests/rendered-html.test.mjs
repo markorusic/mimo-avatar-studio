@@ -3,7 +3,8 @@ import { access, readFile } from "node:fs/promises";
 import test from "node:test";
 
 async function readBuiltPage(name) {
-  return readFile(new URL(`../.next/server/app/${name}.html`, import.meta.url), "utf8");
+  const path = name === "index" ? "index.html" : `${name}/index.html`;
+  return readFile(new URL(`../.output/public/${path}`, import.meta.url), "utf8");
 }
 
 test("prerenders the Studio with public installation docs", async () => {
@@ -120,4 +121,13 @@ test("keeps the distributable and demo sprite packs identical", async () => {
       assert.ok(demoSprite.equals(kitSprite), `${character}/${expression} sprite differs`);
     }
   }
+});
+
+test("keeps generated framework output out of Vercel source deployments", async () => {
+  const vercelIgnore = await readFile(new URL("../.vercelignore", import.meta.url), "utf8");
+
+  assert.match(vercelIgnore, /^\.output$/m);
+  assert.match(vercelIgnore, /^\.tanstack$/m);
+  assert.match(vercelIgnore, /^\.vercel$/m);
+  assert.match(vercelIgnore, /^dist$/m);
 });

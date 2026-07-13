@@ -1,5 +1,4 @@
-"use client";
-
+import { Link } from "@tanstack/react-router";
 import {
   ArrowLeft,
   Brush,
@@ -11,7 +10,6 @@ import {
   Trash2,
   Undo2,
 } from "lucide-react";
-import Link from "next/link";
 import {
   type ComponentProps,
   type PointerEvent as ReactPointerEvent,
@@ -20,13 +18,13 @@ import {
   useRef,
   useState,
 } from "react";
-import { type GuideExpression, MimoGuide } from "@/packages/mimo-guide/src";
+import { type GuideExpression, MimoGuide } from "../../packages/mimo-guide/src";
 import {
   type GuideCharacterId,
   getGuideCharacter,
   guideCharacters,
   isGuideCharacterId,
-} from "@/packages/mimo-guide/src/characters";
+} from "../../packages/mimo-guide/src/characters";
 
 const PAPER_COLOR = "#fffdf7";
 const PALETTE = ["#17181d", "#6651d8", "#f15b45", "#22a77a", "#e5a91a"];
@@ -363,7 +361,7 @@ export default function CanvasDemo() {
               ))}
             </select>
           </label>
-          <Link className="canvas-back-link" href="/">
+          <Link className="canvas-back-link" to="/">
             <ArrowLeft aria-hidden="true" /> Studio
           </Link>
         </div>

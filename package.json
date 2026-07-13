@@ -15,37 +15,37 @@
     "LICENSE",
     "README.md"
   ],
-  "overrides": {
-    "next": {
-      "postcss": "8.5.19"
-    }
-  },
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "dev": "vite dev",
+    "build": "vite build",
+    "start": "node .output/server/index.mjs",
     "test": "npm run build && node --test tests/rendered-html.test.mjs tests/installer.test.mjs",
     "check": "biome check .",
     "format": "biome format --write .",
     "format:check": "biome format .",
     "lint": "biome lint .",
+    "typecheck": "tsc --noEmit",
     "guide:add": "node packages/mimo-guide/bin/mimo-guide.mjs add",
     "guide:pack": "node scripts/pack-mimo-guide.mjs"
   },
   "dependencies": {
+    "@tanstack/react-router": "^1.170.18",
+    "@tanstack/react-start": "^1.168.28",
     "lucide-react": "^1.24.0",
-    "next": "^16.2.10",
+    "nitro": "^3.0.260610-beta",
     "react": "19.2.6",
     "react-dom": "19.2.6"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.3",
-    "@tailwindcss/postcss": "4.2.1",
+    "@tailwindcss/vite": "^4.3.2",
     "@types/node": "22.19.19",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
+    "@vitejs/plugin-react": "^6.0.3",
     "tailwindcss": "4.2.1",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "vite": "^8.1.4"
   },
   "type": "module"
 }
