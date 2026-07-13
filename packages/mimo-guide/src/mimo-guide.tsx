@@ -1,14 +1,10 @@
 "use client";
 
-import {
-  useEffect,
-  useRef,
-  useState,
-  type CSSProperties,
-} from "react";
-import styles from "./sage-avatar.module.css";
+import { type CSSProperties, useEffect, useRef, useState } from "react";
+import { type GuideCharacter, sageCharacter } from "./characters";
+import styles from "./mimo-guide.module.css";
 
-export const sageExpressions = [
+export const guideExpressions = [
   "idle",
   "happy",
   "listening",
@@ -19,28 +15,12 @@ export const sageExpressions = [
   "sleepy",
 ] as const;
 
-export type SageExpression = (typeof sageExpressions)[number];
+export type GuideExpression = (typeof guideExpressions)[number];
 
-export type SageAvatarCharacter = {
-  id: string;
-  label: string;
-  assetPath: string;
-  assetExtension?: string;
-  stage: string;
-};
-
-export const sageCharacter: SageAvatarCharacter = {
-  id: "sage",
-  label: "Sage",
-  assetPath: "/avatars/sage",
-  assetExtension: "webp",
-  stage: "#51408b",
-};
-
-export type SageAvatarProps = {
-  expression?: SageExpression;
+export type MimoGuideProps = {
+  expression?: GuideExpression;
   intensity?: number;
-  character?: SageAvatarCharacter;
+  character?: GuideCharacter;
   assetPath?: string;
   size?: CSSProperties["width"];
   className?: string;
@@ -53,11 +33,11 @@ export type SageAvatarProps = {
   showExpressionEffects?: boolean;
 };
 
-export function isSageExpression(value: unknown): value is SageExpression {
-  return typeof value === "string" && sageExpressions.includes(value as SageExpression);
+export function isGuideExpression(value: unknown): value is GuideExpression {
+  return typeof value === "string" && guideExpressions.includes(value as GuideExpression);
 }
 
-export function SageAvatar({
+export function MimoGuide({
   expression = "idle",
   intensity = 1,
   character = sageCharacter,
@@ -71,7 +51,7 @@ export function SageAvatar({
   animateExpressionShift = true,
   expressionShiftCooldown = 240,
   showExpressionEffects = true,
-}: SageAvatarProps) {
+}: MimoGuideProps) {
   const previousExpression = useRef(expression);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const transitionAvailableAt = useRef(0);
@@ -144,24 +124,22 @@ export function SageAvatar({
     }
 
     queuedTransitionTimer.current = window.setTimeout(playTransition, wait);
-  }, [
-    animateExpressionShift,
-    expression,
-    expressionShiftCooldown,
-    transitionDuration,
-  ]);
+  }, [animateExpressionShift, expression, expressionShiftCooldown, transitionDuration]);
 
-  useEffect(() => () => {
-    if (transitionFrame.current !== null) {
-      cancelAnimationFrame(transitionFrame.current);
-    }
-    if (transitionTimer.current !== null) {
-      window.clearTimeout(transitionTimer.current);
-    }
-    if (queuedTransitionTimer.current !== null) {
-      window.clearTimeout(queuedTransitionTimer.current);
-    }
-  }, []);
+  useEffect(
+    () => () => {
+      if (transitionFrame.current !== null) {
+        cancelAnimationFrame(transitionFrame.current);
+      }
+      if (transitionTimer.current !== null) {
+        window.clearTimeout(transitionTimer.current);
+      }
+      if (queuedTransitionTimer.current !== null) {
+        window.clearTimeout(queuedTransitionTimer.current);
+      }
+    },
+    [],
+  );
 
   const resolvedAssetPath = (assetPath ?? character.assetPath).replace(/\/$/, "");
   const extension = character.assetExtension ?? "webp";
@@ -172,38 +150,64 @@ export function SageAvatar({
   return (
     <div
       className={[
-        styles["sage-avatar-scene"],
-        animateExpressionShift && isTransitioning ? styles["sage-avatar-transitioning"] : "",
+        styles["mimo-guide-scene"],
+        animateExpressionShift && isTransitioning ? styles["mimo-guide-transitioning"] : "",
         className ?? "",
-      ].filter(Boolean).join(" ")}
+      ]
+        .filter(Boolean)
+        .join(" ")}
       data-expression={expression}
       data-character={character.id}
       data-expression-shift={animateExpressionShift ? "on" : "off"}
-      style={{
-        ...style,
-        "--sage-avatar-intensity": safeIntensity,
-        "--sage-avatar-size": resolvedSize,
-      } as CSSProperties}
+      style={
+        {
+          ...style,
+          "--mimo-guide-intensity": safeIntensity,
+          "--mimo-guide-size": resolvedSize,
+          "--mimo-guide-highlight": character.accent,
+        } as CSSProperties
+      }
       aria-hidden={decorative || undefined}
       aria-label={decorative ? undefined : accessibleLabel}
-      role={decorative ? undefined : "img"}
+      role="img"
     >
-      <div className={`${styles["sage-avatar-orbit"]} ${styles["sage-avatar-orbit-one"]}`} aria-hidden="true" />
-      <div className={`${styles["sage-avatar-orbit"]} ${styles["sage-avatar-orbit-two"]}`} aria-hidden="true" />
+      <div
+        className={`${styles["mimo-guide-orbit"]} ${styles["mimo-guide-orbit-one"]}`}
+        aria-hidden="true"
+      />
+      <div
+        className={`${styles["mimo-guide-orbit"]} ${styles["mimo-guide-orbit-two"]}`}
+        aria-hidden="true"
+      />
       {showExpressionEffects && (
         <>
-          <div className={`${styles["sage-avatar-signal"]} ${styles["sage-avatar-signal-left"]}`} aria-hidden="true"><i /><i /><i /></div>
-          <div className={styles["sage-avatar-thoughts"]} aria-hidden="true"><i /><i /><i /></div>
-          <div className={styles["sage-avatar-sleep-notes"]} aria-hidden="true"><span>z</span><span>z</span><span>z</span></div>
+          <div
+            className={`${styles["mimo-guide-signal"]} ${styles["mimo-guide-signal-left"]}`}
+            aria-hidden="true"
+          >
+            <i />
+            <i />
+            <i />
+          </div>
+          <div className={styles["mimo-guide-thoughts"]} aria-hidden="true">
+            <i />
+            <i />
+            <i />
+          </div>
+          <div className={styles["mimo-guide-sleep-notes"]} aria-hidden="true">
+            <span>z</span>
+            <span>z</span>
+            <span>z</span>
+          </div>
         </>
       )}
 
-      <div className={styles["sage-avatar-sprite-rig"]}>
-        <div className={styles["sage-avatar-sprite-shadow"]} aria-hidden="true" />
-        {sageExpressions.map((spriteExpression) => (
+      <div className={styles["mimo-guide-sprite-rig"]}>
+        <div className={styles["mimo-guide-sprite-shadow"]} aria-hidden="true" />
+        {guideExpressions.map((spriteExpression) => (
           <img
             key={spriteExpression}
-            className={`${styles["sage-avatar-expression-sprite"]} ${spriteExpression === expression ? styles["sage-avatar-active"] : ""}`}
+            className={`${styles["mimo-guide-expression-sprite"]} ${spriteExpression === expression ? styles["mimo-guide-active"] : ""}`}
             src={`${resolvedAssetPath}/${spriteExpression}.${extension}`}
             alt=""
             aria-hidden="true"
@@ -215,4 +219,5 @@ export function SageAvatar({
   );
 }
 
-export default SageAvatar;
+export default MimoGuide;
+export { sageCharacter };

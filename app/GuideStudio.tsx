@@ -1,13 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import SageAvatar, {
-  sageExpressions,
-  isSageExpression,
-  sageCharacter,
-  type SageExpression,
-} from "../packages/sage-avatar/src/sage-avatar";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  type GuideCharacterId,
+  type GuideExpression,
+  getGuideCharacter,
+  guideCharacters,
+  guideExpressions,
+  isGuideCharacterId,
+  isGuideExpression,
+  MimoGuide,
+} from "../packages/mimo-guide/src";
 
 const expressions = [
   { id: "idle", label: "Idle", symbol: "✦", event: "SYSTEM_READY", color: "#c8ff4d" },
@@ -22,45 +26,70 @@ const expressions = [
 
 declare global {
   interface Window {
-    avatarController?: {
-      setExpression: (expression: SageExpression) => void;
-      setState: (state: { expression?: SageExpression }) => void;
-      expressions: readonly SageExpression[];
+    mimoGuideController?: {
+      setExpression: (expression: GuideExpression) => void;
+      setCharacter: (character: GuideCharacterId) => void;
+      setState: (state: GuideState) => void;
+      expressions: readonly GuideExpression[];
+      characters: readonly GuideCharacterId[];
     };
   }
 }
 
-export default function AvatarStudio() {
-  const [expression, setExpression] = useState<SageExpression>("idle");
+type GuideState = {
+  expression?: GuideExpression;
+  character?: GuideCharacterId;
+};
+
+export default function GuideStudio() {
+  const [expression, setExpression] = useState<GuideExpression>("idle");
   const [intensity, setIntensity] = useState(1);
   const [autoPlay, setAutoPlay] = useState(false);
   const [eventCount, setEventCount] = useState(1);
+  const [characterId, setCharacterId] = useState<GuideCharacterId>("sage");
 
   const activeExpression = useMemo(
     () => expressions.find((item) => item.id === expression) ?? expressions[0],
     [expression],
   );
+  const activeCharacter = getGuideCharacter(characterId);
 
-  const applyAvatarState = useCallback((next: { expression?: SageExpression }) => {
-    if (!next.expression) return;
-    setExpression(next.expression);
+  const applyGuideState = useCallback((next: GuideState) => {
+    if (!next.expression && !next.character) return;
+    if (next.expression) setExpression(next.expression);
+    if (next.character) setCharacterId(next.character);
     setEventCount((count) => count + 1);
   }, []);
 
-  const triggerExpression = useCallback((next: SageExpression) => {
-    applyAvatarState({ expression: next });
-  }, [applyAvatarState]);
+  const triggerExpression = useCallback(
+    (next: GuideExpression) => {
+      applyGuideState({ expression: next });
+    },
+    [applyGuideState],
+  );
+
+  const selectCharacter = useCallback(
+    (next: GuideCharacterId) => {
+      applyGuideState({ character: next });
+    },
+    [applyGuideState],
+  );
 
   useEffect(() => {
     const receiveState = (value: unknown) => {
-      if (isSageExpression(value)) {
-        applyAvatarState({ expression: value });
+      if (isGuideExpression(value)) {
+        applyGuideState({ expression: value });
+        return;
+      }
+      if (isGuideCharacterId(value)) {
+        applyGuideState({ character: value });
         return;
       }
       if (typeof value !== "object" || value === null) return;
-      const payload = value as { expression?: unknown };
-      applyAvatarState({
-        expression: isSageExpression(payload.expression) ? payload.expression : undefined,
+      const payload = value as { expression?: unknown; character?: unknown };
+      applyGuideState({
+        expression: isGuideExpression(payload.expression) ? payload.expression : undefined,
+        character: isGuideCharacterId(payload.character) ? payload.character : undefined,
       });
     };
 
@@ -72,34 +101,36 @@ export default function AvatarStudio() {
     const onMessage = (event: MessageEvent) => {
       if (event.source !== window) return;
       const payload = event.data;
-      if (payload?.type === "avatar:state" || payload?.type === "avatar:expression") {
+      if (payload?.type === "mimo-guide:state" || payload?.type === "mimo-guide:expression") {
         receiveState(payload);
       }
     };
 
-    window.avatarController = {
+    window.mimoGuideController = {
       setExpression: triggerExpression,
-      setState: applyAvatarState,
-      expressions: sageExpressions,
+      setCharacter: selectCharacter,
+      setState: applyGuideState,
+      expressions: guideExpressions,
+      characters: guideCharacters.map((character) => character.id),
     };
-    window.addEventListener("avatar:expression", onCustomEvent);
-    window.addEventListener("avatar:state", onCustomEvent);
+    window.addEventListener("mimo-guide:expression", onCustomEvent);
+    window.addEventListener("mimo-guide:state", onCustomEvent);
     window.addEventListener("message", onMessage);
 
     return () => {
-      window.removeEventListener("avatar:expression", onCustomEvent);
-      window.removeEventListener("avatar:state", onCustomEvent);
+      window.removeEventListener("mimo-guide:expression", onCustomEvent);
+      window.removeEventListener("mimo-guide:state", onCustomEvent);
       window.removeEventListener("message", onMessage);
-      delete window.avatarController;
+      delete window.mimoGuideController;
     };
-  }, [applyAvatarState, triggerExpression]);
+  }, [applyGuideState, selectCharacter, triggerExpression]);
 
   useEffect(() => {
     if (!autoPlay) return;
     const interval = setInterval(() => {
       setExpression((current) => {
-        const currentIndex = sageExpressions.indexOf(current);
-        const next = sageExpressions[(currentIndex + 1) % sageExpressions.length];
+        const currentIndex = guideExpressions.indexOf(current);
+        const next = guideExpressions[(currentIndex + 1) % guideExpressions.length];
         setEventCount((count) => count + 1);
         return next;
       });
@@ -119,23 +150,33 @@ export default function AvatarStudio() {
           <a href="#studio">Studio</a>
           <Link href="/canvas">Canvas demo</Link>
           <a href="#install">Install</a>
-          <a href="https://github.com/markorusic/mimo-avatar-studio" target="_blank" rel="noreferrer">GitHub</a>
+          <a
+            href="https://github.com/markorusic/mimo-avatar-studio"
+            target="_blank"
+            rel="noreferrer"
+          >
+            GitHub
+          </a>
         </nav>
       </header>
 
       <section className="studio" id="studio">
         <div
           className="stage-panel"
-          style={{
-            "--accent": activeExpression.color,
-            "--stage": sageCharacter.stage,
-          } as React.CSSProperties}
+          style={
+            {
+              "--accent": activeExpression.color,
+              "--stage": activeCharacter.stage,
+            } as React.CSSProperties
+          }
         >
           <div className="panel-heading">
-            <span>LIVE AVATAR · SAGE</span>
+            <span>LIVE GUIDE · {activeCharacter.label.toUpperCase()}</span>
             <span className="coordinates">EVENT #{String(eventCount).padStart(3, "0")}</span>
           </div>
-          <SageAvatar
+          <MimoGuide
+            key={activeCharacter.id}
+            character={activeCharacter}
             expression={expression}
             intensity={intensity}
             className="studio-avatar"
@@ -151,13 +192,42 @@ export default function AvatarStudio() {
           </div>
         </div>
 
-        <aside className="control-panel" aria-label="Avatar controls">
+        <aside className="control-panel" aria-label="Mimo Guide controls">
+          <div className="character-control">
+            <div>
+              <p>CHARACTER ROSTER</p>
+              <span>{activeCharacter.role}</span>
+            </div>
+            <fieldset className="character-picker" aria-label="Choose a character">
+              {guideCharacters.map((character, index) => (
+                <button
+                  type="button"
+                  key={character.id}
+                  className={character.id === characterId ? "active" : ""}
+                  style={
+                    {
+                      "--character-stage": character.stage,
+                      "--character-accent": character.accent,
+                    } as React.CSSProperties
+                  }
+                  onClick={() => selectCharacter(character.id)}
+                  aria-pressed={character.id === characterId}
+                  data-testid={`character-${character.id}`}
+                >
+                  <span>{String(index + 1).padStart(2, "0")}</span>
+                  <strong>{character.label}</strong>
+                </button>
+              ))}
+            </fieldset>
+          </div>
+
           <div className="control-heading">
             <div>
               <p>EVENT PANEL</p>
               <h2>Send an expression</h2>
             </div>
             <button
+              type="button"
               className={`autoplay ${autoPlay ? "active" : ""}`}
               onClick={() => setAutoPlay((value) => !value)}
               aria-pressed={autoPlay}
@@ -169,6 +239,7 @@ export default function AvatarStudio() {
           <div className="expression-grid">
             {expressions.map((item, index) => (
               <button
+                type="button"
                 key={item.id}
                 className={`expression-button ${expression === item.id ? "active" : ""}`}
                 style={{ "--button-accent": item.color } as React.CSSProperties}
@@ -188,7 +259,9 @@ export default function AvatarStudio() {
           </div>
 
           <div className="intensity-control">
-            <label htmlFor="intensity">Motion intensity <output>{Math.round(intensity * 100)}%</output></label>
+            <label htmlFor="intensity">
+              Motion intensity <output>{Math.round(intensity * 100)}%</output>
+            </label>
             <input
               id="intensity"
               type="range"
@@ -206,9 +279,13 @@ export default function AvatarStudio() {
               <span className="language">JS</span>
             </div>
             <code>
-              <span>window</span>.dispatchEvent(<br />
-              &nbsp;&nbsp;new CustomEvent(<b>&quot;avatar:state&quot;</b>, {`{`}<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;detail: {`{`} expression: <b>&quot;thinking&quot;</b> {`}`}<br />
+              <span>window</span>.dispatchEvent(
+              <br />
+              &nbsp;&nbsp;new CustomEvent(<b>&quot;mimo-guide:state&quot;</b>, {`{`}
+              <br />
+              &nbsp;&nbsp;&nbsp;&nbsp;detail: {`{`} character: <b>&quot;tesla&quot;</b>, expression:{" "}
+              <b>&quot;thinking&quot;</b> {`}`}
+              <br />
               &nbsp;&nbsp;{`}`})<br />
               );
             </code>
@@ -219,9 +296,9 @@ export default function AvatarStudio() {
       <section className="install-section" id="install">
         <div className="install-heading">
           <p className="section-kicker">COPY-OWNED · SHADCN-STYLE</p>
-          <h2>Bring Sage into your React app.</h2>
+          <h2>Bring the full roster into your React app.</h2>
           <p>
-            Install the component source and all eight local sprites directly into your
+            Install the registry-driven component and all local character sprites directly into your
             project. No account, hosted runtime, or proprietary animation tool required.
           </p>
         </div>
@@ -234,11 +311,15 @@ export default function AvatarStudio() {
             </div>
             <h3>One command</h3>
             <p>
-              Run this from your React project. The installer detects shadcn aliases,
-              places the component in your components folder, and copies sprites to public.
+              Run this from your React project. The installer detects shadcn aliases, places the
+              component in your components folder, and copies sprites to public.
             </p>
-            <pre><code>npx --yes github:markorusic/mimo-avatar-studio add .</code></pre>
-            <p className="install-note">Existing customized files are protected unless you add <code>--force</code>.</p>
+            <pre>
+              <code>npx --yes github:markorusic/mimo-avatar-studio add .</code>
+            </pre>
+            <p className="install-note">
+              Existing customized files are protected unless you add <code>--force</code>.
+            </p>
           </article>
 
           <article className="install-card">
@@ -246,13 +327,24 @@ export default function AvatarStudio() {
               <span>MANUAL</span>
               <strong>Copy and own</strong>
             </div>
-            <h3>Three source files + sprites</h3>
+            <h3>Four source files + character packs</h3>
             <ol>
-              <li>Copy <code>packages/sage-avatar/src</code> into your component folder.</li>
-              <li>Copy <code>packages/sage-avatar/assets</code> to <code>public/avatars/sage</code>.</li>
-              <li>Import <code>SageAvatar</code> and control it with an expression prop.</li>
+              <li>
+                Copy <code>packages/mimo-guide/src</code> into your component folder.
+              </li>
+              <li>
+                Copy <code>packages/mimo-guide/assets</code> to <code>public/mimo-guides</code>.
+              </li>
+              <li>
+                Import <code>MimoGuide</code>, choose a registry character, and control its
+                expression.
+              </li>
             </ol>
-            <a href="https://github.com/markorusic/mimo-avatar-studio/tree/main/packages/sage-avatar" target="_blank" rel="noreferrer">
+            <a
+              href="https://github.com/markorusic/mimo-avatar-studio/tree/main/packages/mimo-guide"
+              target="_blank"
+              rel="noreferrer"
+            >
               Open the portable kit ↗
             </a>
           </article>
@@ -263,18 +355,21 @@ export default function AvatarStudio() {
             <span>USE IT</span>
             <strong>Controlled React component</strong>
           </div>
-          <pre><code>{`import { SageAvatar } from "@/components/sage-avatar";
+          <pre>
+            <code>{`import { MimoGuide, teslaCharacter } from "@/components/mimo-guide";
 
-<SageAvatar
+<MimoGuide
+  character={teslaCharacter}
   expression="thinking"
   expressionShiftCooldown={240}
-/>`}</code></pre>
+/>`}</code>
+          </pre>
         </div>
       </section>
 
       <footer>
-        <p>MIMO / SAGE AVATAR KIT</p>
-        <p>React component · 8 illustrated expressions · MIT licensed</p>
+        <p>MIMO / ILLUSTRATED AVATAR KIT</p>
+        <p>4 characters · 8 expressions each · MIT licensed</p>
       </footer>
     </main>
   );

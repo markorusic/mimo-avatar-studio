@@ -8,30 +8,37 @@ async function readBuiltPage(name) {
 
 test("prerenders the Studio with public installation docs", async () => {
   const html = await readBuiltPage("index");
-  assert.match(html, /<title>Mimo Avatar Studio<\/title>/i);
-  assert.match(html, /LIVE AVATAR · SAGE/);
-  assert.match(html, /\/avatars\/sage\/idle\.webp/);
+  assert.match(html, /<title>Mimo Guide Studio<\/title>/i);
+  assert.match(html, /LIVE GUIDE ·/);
+  assert.match(html, /data-character="sage"/);
+  assert.match(html, /\/mimo-guides\/sage\/idle\.webp/);
   assert.match(html, /Send an expression/);
   assert.match(html, /expression-happy/);
-  assert.match(html, /Bring Sage into your React app/);
+  assert.match(html, /character-socrates/);
+  assert.match(html, /character-tesla/);
+  assert.match(html, /character-leonardo/);
+  assert.match(html, /Bring the full roster into your React app/);
   assert.match(html, /github:markorusic\/mimo-avatar-studio/);
   assert.match(html, /href="\/canvas"/);
   assert.match(html, /og-wizard\.png/);
   assert.doesNotMatch(html, /ONE WIZARD|EVERY FEELING/);
-  assert.doesNotMatch(html, /Choose your avatar|character-nova|character-pip|character-moss/);
+  assert.doesNotMatch(html, /character-nova|character-pip|character-moss/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton/i);
 });
 
 test("prerenders the interactive canvas example", async () => {
   const html = await readBuiltPage("canvas");
-  assert.match(html, /<title>Sage Canvas · Mimo Avatar Studio<\/title>/i);
+  assert.match(html, /<title>Mimo Canvas · Guide Studio<\/title>/i);
   assert.match(html, /Interactive integration example/);
   assert.match(html, /aria-label="Drawing canvas"/);
   assert.match(html, /Disable event pop animation/);
+  assert.match(html, /Canvas guide character/);
+  assert.match(html, /Nikola Tesla/);
   assert.match(html, /href="\/"/);
 });
 
-test("ships every Sage expression sprite", async () => {
+test("ships every registered character expression sprite", async () => {
+  const characters = ["sage", "socrates", "tesla", "leonardo"];
   const expressions = [
     "idle",
     "happy",
@@ -44,28 +51,46 @@ test("ships every Sage expression sprite", async () => {
   ];
 
   await Promise.all(
-    expressions.map((expression) =>
-      access(new URL(`../public/avatars/sage/${expression}.webp`, import.meta.url)),
+    characters.flatMap((character) =>
+      expressions.map((expression) =>
+        access(new URL(`../public/mimo-guides/${character}/${expression}.webp`, import.meta.url)),
+      ),
     ),
   );
 });
 
-test("keeps Sage avatar styles fully namespaced", async () => {
-  const css = await readFile(
-    new URL("../packages/sage-avatar/src/sage-avatar.module.css", import.meta.url),
+test("exposes only Mimo Guide names from the public component entrypoint", async () => {
+  const publicEntrypoint = await readFile(
+    new URL("../packages/mimo-guide/src/index.ts", import.meta.url),
     "utf8",
   );
-  const classNames = [...css.matchAll(/\.([A-Za-z][A-Za-z0-9_-]*)/g)]
-    .map((match) => match[1]);
+
+  assert.match(publicEntrypoint, /MimoGuide/);
+  assert.match(publicEntrypoint, /GuideExpression/);
+  assert.match(publicEntrypoint, /GuideCharacter/);
+  assert.match(publicEntrypoint, /guideCharacters/);
+  assert.doesNotMatch(
+    publicEntrypoint,
+    /SageAvatar|MimoAvatar|AvatarExpression|AvatarCharacter|avatarCharacters/,
+  );
+});
+
+test("keeps Mimo Guide styles fully namespaced", async () => {
+  const css = await readFile(
+    new URL("../packages/mimo-guide/src/mimo-guide.module.css", import.meta.url),
+    "utf8",
+  );
+  const classNames = [...css.matchAll(/\.([A-Za-z][A-Za-z0-9_-]*)/g)].map((match) => match[1]);
 
   assert.ok(classNames.length > 0);
-  assert.ok(classNames.every((className) => /^sage-avatar(?:-[a-z]+)+$/.test(className)));
-  assert.match(css, /--sage-avatar-intensity/);
+  assert.ok(classNames.every((className) => /^mimo-guide(?:-[a-z]+)+$/.test(className)));
+  assert.match(css, /--mimo-guide-intensity/);
   assert.doesNotMatch(css, /--(?:intensity|avatar-)/);
-  assert.doesNotMatch(css, /@keyframes\s+(?!sageAvatar)/);
+  assert.doesNotMatch(css, /@keyframes\s+(?!mimoGuide)/);
 });
 
 test("keeps the distributable and demo sprite packs identical", async () => {
+  const characters = ["sage", "socrates", "tesla", "leonardo"];
   const expressions = [
     "idle",
     "happy",
@@ -77,11 +102,15 @@ test("keeps the distributable and demo sprite packs identical", async () => {
     "sleepy",
   ];
 
-  for (const expression of expressions) {
-    const [demoSprite, kitSprite] = await Promise.all([
-      readFile(new URL(`../public/avatars/sage/${expression}.webp`, import.meta.url)),
-      readFile(new URL(`../packages/sage-avatar/assets/${expression}.webp`, import.meta.url)),
-    ]);
-    assert.ok(demoSprite.equals(kitSprite), `${expression} sprite differs`);
+  for (const character of characters) {
+    for (const expression of expressions) {
+      const [demoSprite, kitSprite] = await Promise.all([
+        readFile(new URL(`../public/mimo-guides/${character}/${expression}.webp`, import.meta.url)),
+        readFile(
+          new URL(`../packages/mimo-guide/assets/${character}/${expression}.webp`, import.meta.url),
+        ),
+      ]);
+      assert.ok(demoSprite.equals(kitSprite), `${character}/${expression} sprite differs`);
+    }
   }
 });

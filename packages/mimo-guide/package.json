@@ -1,17 +1,17 @@
 {
-  "name": "sage-avatar-kit",
+  "name": "mimo-guide",
   "version": "0.1.0",
-  "description": "A portable illustrated Sage avatar with animated expressions.",
+  "description": "A portable cast of illustrated guides with animated expressions.",
   "private": true,
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/markorusic/mimo-avatar-studio.git",
-    "directory": "packages/sage-avatar"
+    "directory": "packages/mimo-guide"
   },
   "type": "module",
   "bin": {
-    "sage-avatar": "./bin/sage-avatar.mjs"
+    "mimo-guide": "./bin/mimo-guide.mjs"
   },
   "files": [
     "assets",

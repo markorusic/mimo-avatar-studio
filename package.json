@@ -1,5 +1,5 @@
 {
-  "name": "mimo-animated-avatar",
+  "name": "mimo-guide-studio",
   "version": "0.1.0",
   "private": true,
   "license": "MIT",
@@ -8,10 +8,10 @@
     "url": "https://github.com/markorusic/mimo-avatar-studio.git"
   },
   "bin": {
-    "sage-avatar": "./packages/sage-avatar/bin/sage-avatar.mjs"
+    "mimo-guide": "./packages/mimo-guide/bin/mimo-guide.mjs"
   },
   "files": [
-    "packages/sage-avatar",
+    "packages/mimo-guide",
     "LICENSE",
     "README.md"
   ],
@@ -25,9 +25,12 @@
     "build": "next build",
     "start": "next start",
     "test": "npm run build && node --test tests/rendered-html.test.mjs tests/installer.test.mjs",
-    "lint": "eslint . --ignore-pattern dist --ignore-pattern .next --ignore-pattern work --ignore-pattern outputs",
-    "sage:add": "node packages/sage-avatar/bin/sage-avatar.mjs add",
-    "sage:pack": "node scripts/pack-sage-avatar.mjs"
+    "check": "biome check .",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "lint": "biome lint .",
+    "guide:add": "node packages/mimo-guide/bin/mimo-guide.mjs add",
+    "guide:pack": "node scripts/pack-mimo-guide.mjs"
   },
   "dependencies": {
     "lucide-react": "^1.24.0",
@@ -36,12 +39,11 @@
     "react-dom": "19.2.6"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.5.3",
     "@tailwindcss/postcss": "4.2.1",
     "@types/node": "22.19.19",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
-    "eslint": "9.39.4",
-    "eslint-config-next": "16.2.6",
     "tailwindcss": "4.2.1",
     "typescript": "5.9.3"
   },

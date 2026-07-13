@@ -1,14 +1,6 @@
 "use client";
 
 import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  type ComponentProps,
-  type PointerEvent as ReactPointerEvent,
-} from "react";
-import {
   ArrowLeft,
   Brush,
   Download,
@@ -21,9 +13,21 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import {
-  SageAvatar,
-  type SageExpression,
-} from "@/packages/sage-avatar/src";
+  type ComponentProps,
+  type PointerEvent as ReactPointerEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import {
+  type GuideCharacterId,
+  type GuideExpression,
+  getGuideCharacter,
+  guideCharacters,
+  isGuideCharacterId,
+  MimoGuide,
+} from "@/packages/mimo-guide/src";
 
 const PAPER_COLOR = "#fffdf7";
 const PALETTE = ["#17181d", "#6651d8", "#f15b45", "#22a77a", "#e5a91a"];
@@ -31,7 +35,7 @@ const PALETTE = ["#17181d", "#6651d8", "#f15b45", "#22a77a", "#e5a91a"];
 type Tool = "brush" | "eraser";
 
 type Reaction = {
-  expression: SageExpression;
+  expression: GuideExpression;
   message: string;
 };
 
@@ -72,6 +76,8 @@ export default function CanvasDemo() {
   const [historyState, setHistoryState] = useState({ undo: 0, redo: 0 });
   const [reaction, setReaction] = useState<Reaction>(idleReaction);
   const [eventPop, setEventPop] = useState(true);
+  const [characterId, setCharacterId] = useState<GuideCharacterId>("sage");
+  const activeCharacter = getGuideCharacter(characterId);
 
   const updateHistoryState = useCallback(() => {
     setHistoryState({
@@ -80,7 +86,7 @@ export default function CanvasDemo() {
     });
   }, []);
 
-  const reactAsSage = useCallback((next: Reaction, duration = 1700) => {
+  const reactAsGuide = useCallback((next: Reaction, duration = 1700) => {
     if (reactionTimerRef.current) window.clearTimeout(reactionTimerRef.current);
     setReaction(next);
     reactionTimerRef.current = window.setTimeout(() => {
@@ -102,21 +108,24 @@ export default function CanvasDemo() {
     updateHistoryState();
   }, [updateHistoryState]);
 
-  const restoreSnapshot = useCallback((snapshot: string) => {
-    const canvas = canvasRef.current;
-    const context = getCanvasContext();
-    if (!canvas || !context) return;
+  const restoreSnapshot = useCallback(
+    (snapshot: string) => {
+      const canvas = canvasRef.current;
+      const context = getCanvasContext();
+      if (!canvas || !context) return;
 
-    const image = new Image();
-    image.onload = () => {
-      context.save();
-      context.setTransform(1, 0, 0, 1, 0, 0);
-      context.clearRect(0, 0, canvas.width, canvas.height);
-      context.drawImage(image, 0, 0, canvas.width, canvas.height);
-      context.restore();
-    };
-    image.src = snapshot;
-  }, [getCanvasContext]);
+      const image = new Image();
+      image.onload = () => {
+        context.save();
+        context.setTransform(1, 0, 0, 1, 0, 0);
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+        context.restore();
+      };
+      image.src = snapshot;
+    },
+    [getCanvasContext],
+  );
 
   const fillCanvas = useCallback(() => {
     const canvas = canvasRef.current;
@@ -176,9 +185,12 @@ export default function CanvasDemo() {
     return () => observer.disconnect();
   }, []);
 
-  useEffect(() => () => {
-    if (reactionTimerRef.current) window.clearTimeout(reactionTimerRef.current);
-  }, []);
+  useEffect(
+    () => () => {
+      if (reactionTimerRef.current) window.clearTimeout(reactionTimerRef.current);
+    },
+    [],
+  );
 
   const pointFromEvent = (event: ReactPointerEvent<HTMLCanvasElement>) => {
     const bounds = event.currentTarget.getBoundingClientRect();
@@ -203,10 +215,13 @@ export default function CanvasDemo() {
     context.lineWidth = tool === "eraser" ? brushSize * 2.4 : brushSize;
     context.strokeStyle = tool === "eraser" ? PAPER_COLOR : color;
 
-    reactAsSage({
-      expression: tool === "eraser" ? "thinking" : "listening",
-      message: tool === "eraser" ? "Cleaning that edge…" : "I’m following your line.",
-    }, 2400);
+    reactAsGuide(
+      {
+        expression: tool === "eraser" ? "thinking" : "listening",
+        message: tool === "eraser" ? "Cleaning that edge…" : "I’m following your line.",
+      },
+      2400,
+    );
   };
 
   const continueDrawing = (event: ReactPointerEvent<HTMLCanvasElement>) => {
@@ -225,7 +240,7 @@ export default function CanvasDemo() {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
     getCanvasContext()?.closePath();
-    reactAsSage({ expression: "happy", message: "That stroke has character!" });
+    reactAsGuide({ expression: "happy", message: "That stroke has character!" });
   };
 
   const undo = useCallback(() => {
@@ -235,8 +250,8 @@ export default function CanvasDemo() {
     redoRef.current.push(canvas.toDataURL("image/png"));
     restoreSnapshot(previous);
     updateHistoryState();
-    reactAsSage({ expression: "sad", message: "Rewinding that idea." });
-  }, [reactAsSage, restoreSnapshot, updateHistoryState]);
+    reactAsGuide({ expression: "sad", message: "Rewinding that idea." });
+  }, [reactAsGuide, restoreSnapshot, updateHistoryState]);
 
   const redo = useCallback(() => {
     const canvas = canvasRef.current;
@@ -245,22 +260,22 @@ export default function CanvasDemo() {
     historyRef.current.push(canvas.toDataURL("image/png"));
     restoreSnapshot(next);
     updateHistoryState();
-    reactAsSage({ expression: "happy", message: "Back it comes!" });
-  }, [reactAsSage, restoreSnapshot, updateHistoryState]);
+    reactAsGuide({ expression: "happy", message: "Back it comes!" });
+  }, [reactAsGuide, restoreSnapshot, updateHistoryState]);
 
   const clearCanvas = useCallback(() => {
     recordSnapshot();
     fillCanvas();
-    reactAsSage({ expression: "surprised", message: "A completely fresh page!" }, 2000);
-  }, [fillCanvas, reactAsSage, recordSnapshot]);
+    reactAsGuide({ expression: "surprised", message: "A completely fresh page!" }, 2000);
+  }, [fillCanvas, reactAsGuide, recordSnapshot]);
 
   const resetCanvas = useCallback(() => {
     fillCanvas();
     historyRef.current = [];
     redoRef.current = [];
     updateHistoryState();
-    reactAsSage({ expression: "idle", message: "New sketch, new possibilities." }, 2200);
-  }, [fillCanvas, reactAsSage, updateHistoryState]);
+    reactAsGuide({ expression: "idle", message: "New sketch, new possibilities." }, 2200);
+  }, [fillCanvas, reactAsGuide, updateHistoryState]);
 
   const downloadCanvas = () => {
     const canvas = canvasRef.current;
@@ -269,17 +284,33 @@ export default function CanvasDemo() {
     link.download = "sage-canvas-sketch.png";
     link.href = canvas.toDataURL("image/png");
     link.click();
-    reactAsSage({ expression: "happy", message: "Your sketch is safely exported." }, 2200);
+    reactAsGuide({ expression: "happy", message: "Your sketch is safely exported." }, 2200);
   };
 
-  const chooseTool = useCallback((nextTool: Tool) => {
-    setTool(nextTool);
-    reactAsSage(
-      nextTool === "eraser"
-        ? { expression: "thinking", message: "Precision mode: eraser ready." }
-        : { expression: "happy", message: "Brush ready. Make a mark!" },
-    );
-  }, [reactAsSage]);
+  const chooseTool = useCallback(
+    (nextTool: Tool) => {
+      setTool(nextTool);
+      reactAsGuide(
+        nextTool === "eraser"
+          ? { expression: "thinking", message: "Precision mode: eraser ready." }
+          : { expression: "happy", message: "Brush ready. Make a mark!" },
+      );
+    },
+    [reactAsGuide],
+  );
+
+  const chooseCharacter = useCallback(
+    (nextCharacter: string) => {
+      if (!isGuideCharacterId(nextCharacter)) return;
+      const character = getGuideCharacter(nextCharacter);
+      setCharacterId(nextCharacter);
+      reactAsGuide({
+        expression: "happy",
+        message: `${character.label} is ready to help.`,
+      });
+    },
+    [reactAsGuide],
+  );
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -299,22 +330,48 @@ export default function CanvasDemo() {
   }, [chooseTool, redo, undo]);
 
   return (
-    <div className="sage-canvas-page">
+    <div
+      className="sage-canvas-page"
+      style={
+        {
+          "--primary": activeCharacter.accent,
+          "--ring": activeCharacter.accent,
+        } as React.CSSProperties
+      }
+    >
       <header className="app-header">
         <div className="brand-lockup">
-          <span className="brand-icon"><Sparkles aria-hidden="true" /></span>
+          <span className="brand-icon">
+            <Sparkles aria-hidden="true" />
+          </span>
           <div>
-            <strong>Sage Canvas</strong>
+            <strong>Mimo Canvas</strong>
             <span>Interactive integration example</span>
           </div>
         </div>
-        <Link className="canvas-back-link" href="/">
-          <ArrowLeft aria-hidden="true" /> Studio
-        </Link>
+        <div className="canvas-header-actions">
+          <label className="canvas-character-select">
+            <span>Guide</span>
+            <select
+              value={characterId}
+              onChange={(event) => chooseCharacter(event.target.value)}
+              aria-label="Canvas guide character"
+            >
+              {guideCharacters.map((character) => (
+                <option key={character.id} value={character.id}>
+                  {character.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <Link className="canvas-back-link" href="/">
+            <ArrowLeft aria-hidden="true" /> Studio
+          </Link>
+        </div>
       </header>
 
       <section className="toolbar" aria-label="Drawing controls">
-        <div className="toolbar-group tool-picker" aria-label="Drawing tool">
+        <fieldset className="toolbar-group tool-picker" aria-label="Drawing tool">
           <CanvasButton
             variant={tool === "brush" ? "default" : "ghost"}
             onClick={() => chooseTool("brush")}
@@ -329,26 +386,30 @@ export default function CanvasDemo() {
           >
             <Eraser /> Eraser <kbd>E</kbd>
           </CanvasButton>
-        </div>
+        </fieldset>
 
         <div className="toolbar-divider" />
 
-        <div className="toolbar-group color-picker" aria-label="Brush color">
+        <fieldset className="toolbar-group color-picker" aria-label="Brush color">
           {PALETTE.map((paletteColor) => (
             <button
+              type="button"
               key={paletteColor}
               className="color-swatch"
               style={{ "--swatch-color": paletteColor } as React.CSSProperties}
               onClick={() => {
                 setColor(paletteColor);
                 setTool("brush");
-                reactAsSage({ expression: "surprised", message: "That color changes everything!" });
+                reactAsGuide({
+                  expression: "surprised",
+                  message: "That color changes everything!",
+                });
               }}
               aria-label={`Use color ${paletteColor}`}
               aria-pressed={color === paletteColor && tool === "brush"}
             />
           ))}
-        </div>
+        </fieldset>
 
         <div className="toolbar-divider" />
 
@@ -363,7 +424,10 @@ export default function CanvasDemo() {
             onChange={(event) => {
               const value = Number(event.target.value);
               setBrushSize(value);
-              reactAsSage({ expression: "thinking", message: `A ${value}px stroke—good choice.` }, 1000);
+              reactAsGuide(
+                { expression: "thinking", message: `A ${value}px stroke—good choice.` },
+                1000,
+              );
             }}
             aria-label="Brush size"
           />
@@ -373,13 +437,30 @@ export default function CanvasDemo() {
         <div className="toolbar-spacer" />
 
         <div className="toolbar-group history-controls">
-          <CanvasButton size="icon" onClick={undo} disabled={!historyState.undo} aria-label="Undo" title="Undo (Ctrl+Z)">
+          <CanvasButton
+            size="icon"
+            onClick={undo}
+            disabled={!historyState.undo}
+            aria-label="Undo"
+            title="Undo (Ctrl+Z)"
+          >
             <Undo2 />
           </CanvasButton>
-          <CanvasButton size="icon" onClick={redo} disabled={!historyState.redo} aria-label="Redo" title="Redo (Ctrl+Shift+Z)">
+          <CanvasButton
+            size="icon"
+            onClick={redo}
+            disabled={!historyState.redo}
+            aria-label="Redo"
+            title="Redo (Ctrl+Shift+Z)"
+          >
             <Redo2 />
           </CanvasButton>
-          <CanvasButton size="icon" onClick={clearCanvas} aria-label="Clear canvas" title="Clear canvas">
+          <CanvasButton
+            size="icon"
+            onClick={clearCanvas}
+            aria-label="Clear canvas"
+            title="Clear canvas"
+          >
             <Trash2 />
           </CanvasButton>
           <CanvasButton variant="outline" onClick={downloadCanvas}>
@@ -412,15 +493,22 @@ export default function CanvasDemo() {
               if (event.buttons === 0) stopDrawing(event);
             }}
           />
-          <div className="canvas-corner-label">SAGE / 01</div>
+          <div className="canvas-corner-label">
+            {activeCharacter.label.toUpperCase()} /{" "}
+            {String(guideCharacters.findIndex((item) => item.id === characterId) + 1).padStart(
+              2,
+              "0",
+            )}
+          </div>
           <aside
             className="sage-helper"
             data-expression={reaction.expression}
-            aria-label="Sage drawing assistant"
+            data-character={activeCharacter.id}
+            aria-label={`${activeCharacter.label} drawing assistant`}
           >
             <div className="sage-message" aria-live="polite">
               <div className="sage-message-header">
-                <span className="sage-message-label">Sage says</span>
+                <span className="sage-message-label">{activeCharacter.label} says</span>
                 <button
                   type="button"
                   className="sage-pop-toggle"
@@ -429,7 +517,7 @@ export default function CanvasDemo() {
                   onClick={() => {
                     const nextValue = !eventPop;
                     setEventPop(nextValue);
-                    reactAsSage({
+                    reactAsGuide({
                       expression: nextValue ? "happy" : "listening",
                       message: nextValue ? "Event pop is on." : "Crossfade only—nice and calm.",
                     });
@@ -440,15 +528,19 @@ export default function CanvasDemo() {
               </div>
               <p>{reaction.message}</p>
               <span className="sage-thought-bridge" aria-hidden="true">
-                <i /><i /><i />
+                <i />
+                <i />
+                <i />
               </span>
             </div>
-            <SageAvatar
+            <MimoGuide
+              key={activeCharacter.id}
+              character={activeCharacter}
               expression={reaction.expression}
               intensity={0.9}
               size={230}
-              className="sage-helper-avatar"
-              label={`Sage, your drawing assistant, is ${reaction.expression}`}
+              className="mimo-guide-helper"
+              label={`${activeCharacter.label}, your drawing assistant, is ${reaction.expression}`}
               animateExpressionShift={eventPop}
               expressionShiftCooldown={320}
               showExpressionEffects={reaction.expression !== "thinking"}

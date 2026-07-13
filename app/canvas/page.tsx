@@ -3,8 +3,9 @@ import CanvasDemo from "./CanvasDemo";
 import "./canvas.css";
 
 export const metadata: Metadata = {
-  title: "Sage Canvas · Mimo Avatar Studio",
-  description: "An interactive example of Sage reacting to drawing canvas events.",
+  title: "Mimo Canvas · Guide Studio",
+  description:
+    "An interactive example with switchable illustrated guides reacting to canvas events.",
 };
 
 export default function CanvasPage() {

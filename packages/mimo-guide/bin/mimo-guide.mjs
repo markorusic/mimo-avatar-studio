@@ -1,12 +1,7 @@
 #!/usr/bin/env node
 
 import { constants } from "node:fs";
-import {
-  access,
-  copyFile,
-  mkdir,
-  readFile,
-} from "node:fs/promises";
+import { access, copyFile, mkdir, readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -20,27 +15,28 @@ const EXPRESSIONS = [
   "angry",
   "sleepy",
 ];
+const SOURCE_FILES = ["mimo-guide.tsx", "mimo-guide.module.css", "characters.ts", "index.ts"];
 
 const PACKAGE_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 function printHelp() {
   console.log(`
-Sage Avatar installer
+Mimo Guide installer
 
 Usage:
-  sage-avatar add [project] [options]
+  mimo-guide add [project] [options]
 
 Options:
   --component-dir <path>  Component destination relative to the project
   --public-dir <path>     Public folder relative to the project (default: public)
   --dry-run               Show what would change without writing files
-  --force                 Replace conflicting Sage Avatar files
+  --force                 Replace conflicting Mimo Guide files
   -h, --help              Show this help
 
 Examples:
-  sage-avatar add .
-  sage-avatar add ../my-app --dry-run
-  sage-avatar add . --component-dir src/components/sage-avatar
+  mimo-guide add .
+  mimo-guide add ../my-app --dry-run
+  mimo-guide add . --component-dir src/components/mimo-guide
 `);
 }
 
@@ -97,9 +93,7 @@ function parseJsonWithComments(source) {
   try {
     return JSON.parse(source);
   } catch {
-    const withoutComments = source
-      .replace(/^\s*\/\/.*$/gm, "")
-      .replace(/,\s*([}\]])/g, "$1");
+    const withoutComments = source.replace(/^\s*\/\/.*$/gm, "").replace(/,\s*([}\]])/g, "$1");
     return JSON.parse(withoutComments);
   }
 }
@@ -135,7 +129,7 @@ async function resolveAlias(projectRoot, alias) {
 
   if (alias.startsWith("@/") || alias.startsWith("~/")) {
     const relativeAlias = alias.slice(2);
-    const sourceRoot = await exists(path.join(projectRoot, "src")) ? "src" : ".";
+    const sourceRoot = (await exists(path.join(projectRoot, "src"))) ? "src" : ".";
     return path.resolve(projectRoot, sourceRoot, relativeAlias);
   }
 
@@ -156,16 +150,16 @@ async function resolveComponentDestination(projectRoot, override) {
     const componentsRoot = await resolveAlias(projectRoot, componentsAlias);
     if (componentsRoot) {
       return {
-        directory: path.join(componentsRoot, "sage-avatar"),
-        importPath: `${componentsAlias.replace(/\/$/, "")}/sage-avatar`,
+        directory: path.join(componentsRoot, "mimo-guide"),
+        importPath: `${componentsAlias.replace(/\/$/, "")}/mimo-guide`,
       };
     }
   }
 
   const hasSourceDirectory = await exists(path.join(projectRoot, "src"));
   return {
-    directory: path.join(projectRoot, hasSourceDirectory ? "src" : "", "components", "sage-avatar"),
-    importPath: hasSourceDirectory ? "./components/sage-avatar" : "@/components/sage-avatar",
+    directory: path.join(projectRoot, hasSourceDirectory ? "src" : "", "components", "mimo-guide"),
+    importPath: hasSourceDirectory ? "./components/mimo-guide" : "@/components/mimo-guide",
   };
 }
 
@@ -197,27 +191,43 @@ async function install(options) {
     ...packageJson?.peerDependencies,
   };
   if (!dependencies.react) {
-    console.warn("Warning: React is not listed in this package. The files will still be installed.");
+    console.warn(
+      "Warning: React is not listed in this package. The files will still be installed.",
+    );
   }
 
   const component = await resolveComponentDestination(projectRoot, options.componentDir);
-  const assetsDirectory = path.resolve(projectRoot, options.publicDir, "avatars", "sage");
+  const packageAssetsDirectory = path.join(PACKAGE_ROOT, "assets");
+  const characterIds = (await readdir(packageAssetsDirectory, { withFileTypes: true }))
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name)
+    .sort();
   const operations = [
-    ...["sage-avatar.tsx", "sage-avatar.module.css", "index.ts"].map((name) => ({
+    ...SOURCE_FILES.map((name) => ({
       source: path.join(PACKAGE_ROOT, "src", name),
       destination: path.join(component.directory, name),
     })),
-    ...EXPRESSIONS.map((expression) => ({
-      source: path.join(PACKAGE_ROOT, "assets", `${expression}.webp`),
-      destination: path.join(assetsDirectory, `${expression}.webp`),
-    })),
+    ...characterIds.flatMap((characterId) =>
+      EXPRESSIONS.map((expression) => ({
+        source: path.join(packageAssetsDirectory, characterId, `${expression}.webp`),
+        destination: path.resolve(
+          projectRoot,
+          options.publicDir,
+          "mimo-guides",
+          characterId,
+          `${expression}.webp`,
+        ),
+      })),
+    ),
   ];
 
-  const states = await Promise.all(operations.map(async (operation) => ({
-    ...operation,
-    exists: await exists(operation.destination),
-    matches: await filesMatch(operation.source, operation.destination),
-  })));
+  const states = await Promise.all(
+    operations.map(async (operation) => ({
+      ...operation,
+      exists: await exists(operation.destination),
+      matches: await filesMatch(operation.source, operation.destination),
+    })),
+  );
   const conflicts = states.filter((operation) => operation.exists && !operation.matches);
 
   if (conflicts.length && !options.force) {
@@ -225,12 +235,12 @@ async function install(options) {
       .map((operation) => `  - ${relativePath(projectRoot, operation.destination)}`)
       .join("\n");
     throw new Error(
-      `Installation stopped before writing because these files already differ:\n${conflictList}\n\nRe-run with --force to replace only the Sage Avatar files.`,
+      `Installation stopped before writing because these files already differ:\n${conflictList}\n\nRe-run with --force to replace only the Mimo Guide files.`,
     );
   }
 
   const pending = states.filter((operation) => !operation.matches);
-  console.log(`${options.dryRun ? "Would install" : "Installing"} Sage Avatar in ${projectRoot}`);
+  console.log(`${options.dryRun ? "Would install" : "Installing"} Mimo Guide in ${projectRoot}`);
 
   for (const operation of states) {
     const destination = relativePath(projectRoot, operation.destination);
@@ -245,11 +255,16 @@ async function install(options) {
     }
   }
 
-  console.log(`\n${options.dryRun ? "Dry run complete" : pending.length ? "Sage Avatar is ready" : "Sage Avatar was already up to date"}.`);
+  console.log(
+    `\n${options.dryRun ? "Dry run complete" : pending.length ? "Mimo Guide is ready" : "Mimo Guide was already up to date"}.`,
+  );
   console.log("\nUse it like this:\n");
-  console.log(`import { SageAvatar, type SageExpression } from "${component.importPath ?? relativePath(projectRoot, component.directory)}";`);
-  console.log("\n<SageAvatar expression=\"thinking\" />");
-  console.log("\nAvailable expressions: " + EXPRESSIONS.join(", "));
+  console.log(
+    `import { MimoGuide, guideCharacters, type GuideExpression } from "${component.importPath ?? relativePath(projectRoot, component.directory)}";`,
+  );
+  console.log('\n<MimoGuide character={guideCharacters[1]} expression="thinking" />');
+  console.log(`\nInstalled characters: ${characterIds.join(", ")}`);
+  console.log(`\nAvailable expressions: ${EXPRESSIONS.join(", ")}`);
 }
 
 try {
@@ -260,6 +275,6 @@ try {
     await install(options);
   }
 } catch (error) {
-  console.error(`\nSage Avatar: ${error instanceof Error ? error.message : String(error)}\n`);
+  console.error(`\nMimo Guide: ${error instanceof Error ? error.message : String(error)}\n`);
   process.exitCode = 1;
 }

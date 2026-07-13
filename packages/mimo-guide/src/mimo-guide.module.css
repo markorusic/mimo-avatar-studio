@@ -1,0 +1,381 @@
+.mimo-guide-scene {
+  --mimo-guide-intensity: 1;
+  --mimo-guide-size: 520px;
+  --mimo-guide-ink: #17191f;
+  --mimo-guide-highlight: #c8ff4d;
+  width: min(100%, var(--mimo-guide-size));
+  aspect-ratio: 1;
+  position: relative;
+  display: grid;
+  place-items: center;
+  isolation: isolate;
+}
+
+.mimo-guide-orbit {
+  position: absolute;
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.mimo-guide-orbit-one {
+  width: min(470px, 78%);
+  aspect-ratio: 1;
+  animation: mimoGuideOrbitRotate 17s linear infinite;
+}
+
+.mimo-guide-orbit-one::after {
+  content: "";
+  width: 12px;
+  height: 12px;
+  position: absolute;
+  top: 20%;
+  left: 3%;
+  border-radius: 50%;
+  background: var(--mimo-guide-highlight);
+  box-shadow: 0 0 0 6px rgba(200, 255, 77, 0.17);
+}
+
+.mimo-guide-orbit-two {
+  width: min(570px, 92%);
+  aspect-ratio: 1;
+  border-style: dashed;
+  opacity: 0.5;
+  animation: mimoGuideOrbitRotate 28s linear infinite reverse;
+}
+
+.mimo-guide-sprite-rig {
+  width: min(520px, 94%);
+  aspect-ratio: 1;
+  position: relative;
+  z-index: 2;
+  transform-origin: 50% 88%;
+  animation: mimoGuideIdleFloat calc(3s / var(--mimo-guide-intensity)) ease-in-out infinite;
+  will-change: transform;
+}
+
+.mimo-guide-expression-sprite {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0;
+  object-fit: contain;
+  pointer-events: none;
+  transform: scale(0.985);
+  filter: drop-shadow(0 14px 8px rgba(20, 14, 57, 0.2));
+  transition:
+    opacity 0.38s ease,
+    transform 0.52s cubic-bezier(0.2, 0.85, 0.24, 1.12);
+  will-change: opacity, transform;
+}
+
+.mimo-guide-expression-sprite.mimo-guide-active {
+  z-index: 2;
+  opacity: 1;
+  transform: scale(1);
+}
+
+.mimo-guide-sprite-shadow {
+  width: 58%;
+  height: 7%;
+  position: absolute;
+  left: 50%;
+  bottom: 0.5%;
+  z-index: 0;
+  border-radius: 50%;
+  background: rgba(20, 14, 57, 0.34);
+  filter: blur(9px);
+  transform: translateX(-50%);
+  animation: mimoGuideShadowBreathe calc(3s / var(--mimo-guide-intensity)) ease-in-out infinite;
+}
+
+.mimo-guide-signal,
+.mimo-guide-thoughts,
+.mimo-guide-sleep-notes {
+  position: absolute;
+  z-index: 7;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+}
+
+.mimo-guide-signal-left {
+  left: 7%;
+  top: 34%;
+  transform: rotate(-10deg);
+}
+
+.mimo-guide-signal i {
+  display: block;
+  width: 28px;
+  height: 15px;
+  margin: 9px;
+  border: 4px solid var(--mimo-guide-highlight);
+  border-left: 0;
+  border-bottom: 0;
+  border-radius: 0 100% 0 0;
+  animation: mimoGuideSignalWave calc(1.1s / var(--mimo-guide-intensity)) ease-out infinite;
+}
+
+.mimo-guide-signal i:nth-child(2) {
+  animation-delay: 0.14s;
+  transform: scale(1.35);
+}
+.mimo-guide-signal i:nth-child(3) {
+  animation-delay: 0.28s;
+  transform: scale(1.7);
+}
+
+.mimo-guide-thoughts {
+  right: 7%;
+  top: 18%;
+  width: 100px;
+  height: 100px;
+}
+
+.mimo-guide-thoughts i {
+  position: absolute;
+  border: 3px solid var(--mimo-guide-ink);
+  border-radius: 50%;
+  background: var(--mimo-guide-highlight);
+  animation: mimoGuideThoughtFloat calc(1.8s / var(--mimo-guide-intensity)) ease-in-out infinite
+    alternate;
+}
+
+.mimo-guide-thoughts i:nth-child(1) {
+  width: 17px;
+  height: 17px;
+  left: 2px;
+  bottom: 4px;
+}
+.mimo-guide-thoughts i:nth-child(2) {
+  width: 28px;
+  height: 28px;
+  left: 24px;
+  bottom: 24px;
+  animation-delay: -0.5s;
+}
+.mimo-guide-thoughts i:nth-child(3) {
+  width: 47px;
+  height: 47px;
+  right: 2px;
+  top: 2px;
+  animation-delay: -1s;
+}
+
+.mimo-guide-sleep-notes {
+  right: 8%;
+  top: 22%;
+  color: var(--mimo-guide-highlight);
+  font-weight: 950;
+}
+
+.mimo-guide-sleep-notes span {
+  position: absolute;
+  animation: mimoGuideSleepNote calc(2.4s / var(--mimo-guide-intensity)) ease-out infinite;
+}
+
+.mimo-guide-sleep-notes span:nth-child(1) {
+  font-size: 20px;
+  animation-delay: 0s;
+}
+.mimo-guide-sleep-notes span:nth-child(2) {
+  font-size: 28px;
+  animation-delay: 0.7s;
+}
+.mimo-guide-sleep-notes span:nth-child(3) {
+  font-size: 38px;
+  animation-delay: 1.4s;
+}
+
+.mimo-guide-scene[data-expression="listening"] .mimo-guide-signal {
+  opacity: 1;
+}
+.mimo-guide-scene[data-expression="thinking"] .mimo-guide-thoughts {
+  opacity: 1;
+}
+.mimo-guide-scene[data-expression="sleepy"] .mimo-guide-sleep-notes {
+  opacity: 1;
+}
+
+.mimo-guide-scene[data-expression="happy"] .mimo-guide-sprite-rig {
+  animation: mimoGuideHappyBounce calc(0.72s / var(--mimo-guide-intensity)) ease-in-out infinite
+    alternate;
+}
+
+.mimo-guide-scene[data-expression="listening"] .mimo-guide-sprite-rig {
+  animation: mimoGuideListenLean calc(1.3s / var(--mimo-guide-intensity)) ease-in-out infinite
+    alternate;
+}
+
+.mimo-guide-scene[data-expression="thinking"] .mimo-guide-sprite-rig {
+  animation: mimoGuideThink calc(2.2s / var(--mimo-guide-intensity)) ease-in-out infinite alternate;
+}
+
+.mimo-guide-scene[data-expression="surprised"] .mimo-guide-sprite-rig {
+  animation: mimoGuideSurprisePop calc(1.5s / var(--mimo-guide-intensity)) ease-in-out infinite;
+}
+
+.mimo-guide-scene[data-expression="sad"] .mimo-guide-sprite-rig {
+  animation: mimoGuideSad calc(3.2s / var(--mimo-guide-intensity)) ease-in-out infinite alternate;
+}
+
+.mimo-guide-scene[data-expression="angry"] .mimo-guide-sprite-rig {
+  animation: mimoGuideAngryShake calc(0.55s / var(--mimo-guide-intensity)) linear infinite;
+}
+
+.mimo-guide-scene[data-expression="sleepy"] .mimo-guide-sprite-rig {
+  animation: mimoGuideSleepySway calc(3.8s / var(--mimo-guide-intensity)) ease-in-out infinite
+    alternate;
+}
+
+.mimo-guide-transitioning .mimo-guide-sprite-rig {
+  animation: mimoGuideExpressionShift 0.52s cubic-bezier(0.2, 0.9, 0.22, 1.18);
+}
+
+@keyframes mimoGuideIdleFloat {
+  0%,
+  100% {
+    transform: translateY(4px);
+  }
+  50% {
+    transform: translateY(calc(-5px * var(--mimo-guide-intensity)));
+  }
+}
+@keyframes mimoGuideShadowBreathe {
+  0%,
+  100% {
+    transform: translateX(-50%) scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateX(-50%) scale(0.87);
+    opacity: 0.48;
+  }
+}
+@keyframes mimoGuideOrbitRotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes mimoGuideHappyBounce {
+  from {
+    transform: translateY(4px) rotate(-1deg);
+  }
+  to {
+    transform: translateY(calc(-10px * var(--mimo-guide-intensity))) rotate(1deg);
+  }
+}
+@keyframes mimoGuideListenLean {
+  from {
+    transform: rotate(-4deg) translateX(-8px);
+  }
+  to {
+    transform: rotate(-1deg) translateX(2px);
+  }
+}
+@keyframes mimoGuideSurprisePop {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  12% {
+    transform: scale(1.055) translateY(-8px);
+  }
+  24% {
+    transform: scale(0.99);
+  }
+}
+@keyframes mimoGuideAngryShake {
+  0%,
+  100% {
+    transform: translateX(-2px) rotate(-1deg);
+  }
+  50% {
+    transform: translateX(2px) rotate(1deg);
+  }
+}
+@keyframes mimoGuideSleepySway {
+  from {
+    transform: translateY(12px) rotate(-3deg);
+  }
+  to {
+    transform: translateY(16px) rotate(2deg);
+  }
+}
+@keyframes mimoGuideExpressionShift {
+  0% {
+    transform: scale(1);
+  }
+  42% {
+    transform: scale(0.91) rotate(-2deg);
+  }
+  72% {
+    transform: scale(1.035) rotate(1deg);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes mimoGuideSignalWave {
+  0% {
+    opacity: 0;
+    transform: scale(0.65);
+  }
+  45% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.35);
+  }
+}
+@keyframes mimoGuideThoughtFloat {
+  from {
+    transform: translateY(2px) rotate(-5deg);
+  }
+  to {
+    transform: translateY(-8px) rotate(5deg);
+  }
+}
+@keyframes mimoGuideSleepNote {
+  0% {
+    opacity: 0;
+    transform: translate(0, 28px) scale(0.7) rotate(-8deg);
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(65px, -60px) scale(1.25) rotate(8deg);
+  }
+}
+@keyframes mimoGuideThink {
+  from {
+    transform: translateY(3px) rotate(-0.7deg);
+  }
+  to {
+    transform: translateY(-5px) rotate(0.7deg);
+  }
+}
+@keyframes mimoGuideSad {
+  from {
+    transform: translateY(9px) rotate(0.8deg);
+  }
+  to {
+    transform: translateY(13px) rotate(-0.5deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mimo-guide-scene *,
+  .mimo-guide-scene *::before,
+  .mimo-guide-scene *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
