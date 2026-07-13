@@ -1,7 +1,7 @@
 "use client";
 
 import { type CSSProperties, useEffect, useRef, useState } from "react";
-import { type GuideCharacter, sageCharacter } from "./characters";
+import type { GuideCharacter } from "./guide-character";
 import styles from "./mimo-guide.module.css";
 
 export const guideExpressions = [
@@ -20,7 +20,7 @@ export type GuideExpression = (typeof guideExpressions)[number];
 export type MimoGuideProps = {
   expression?: GuideExpression;
   intensity?: number;
-  character?: GuideCharacter;
+  character: GuideCharacter;
   assetPath?: string;
   size?: CSSProperties["width"];
   className?: string;
@@ -40,7 +40,7 @@ export function isGuideExpression(value: unknown): value is GuideExpression {
 export function MimoGuide({
   expression = "idle",
   intensity = 1,
-  character = sageCharacter,
+  character,
   assetPath,
   size = 520,
   className,
@@ -220,4 +220,3 @@ export function MimoGuide({
 }
 
 export default MimoGuide;
-export { sageCharacter };

@@ -650,27 +650,145 @@ a {
   line-height: 1.55;
 }
 
-.install-card pre,
-.usage-example pre {
+.studio-code-block {
+  min-width: 0;
   max-width: 100%;
-  overflow-x: auto;
+  overflow: hidden;
   border: 1px solid var(--ink);
   background: var(--ink);
+  color: #f7f7f3;
+}
+
+.install-card .studio-code-block {
+  margin: 24px 0 0;
+}
+
+.studio-code-toolbar {
+  min-height: 38px;
+  padding: 0 10px 0 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.13);
+  background: #20232b;
+}
+
+.studio-code-toolbar > span {
+  color: rgba(255, 255, 255, 0.52);
+  font:
+    750 9px / 1 ui-monospace,
+    SFMono-Regular,
+    Consolas,
+    monospace;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.studio-code-toolbar button {
+  min-width: 76px;
+  min-height: 28px;
+  padding: 0 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  background: #15171d;
+  color: rgba(255, 255, 255, 0.82);
+  cursor: pointer;
+  font:
+    700 10px / 1 ui-monospace,
+    SFMono-Regular,
+    Consolas,
+    monospace;
+  transition:
+    border-color 150ms ease,
+    color 150ms ease,
+    transform 150ms ease;
+}
+
+.studio-code-toolbar button:hover {
+  border-color: var(--lime);
   color: var(--lime);
 }
 
-.install-card pre {
-  margin: 24px 0 0;
-  padding: 18px;
+.studio-code-toolbar button:active {
+  transform: translateY(1px);
 }
 
-.install-card code,
-.usage-example code {
+.studio-code-toolbar button:focus-visible {
+  outline: 2px solid var(--lime);
+  outline-offset: 2px;
+}
+
+.studio-code-toolbar svg {
+  width: 13px;
+  height: 13px;
+  stroke-width: 2;
+}
+
+.studio-code-block pre {
+  max-width: 100%;
+  margin: 0;
+  padding: 20px;
+  overflow-x: auto;
+  border: 0;
+  background: transparent;
+}
+
+.studio-code-block code {
+  display: block;
+  width: max-content;
+  min-width: 100%;
+  color: #f7f7f3;
   font:
     600 12px / 1.55 ui-monospace,
     SFMono-Regular,
     Consolas,
     monospace;
+}
+
+.install-card li code,
+.install-note code {
+  color: var(--purple);
+  font:
+    700 0.9em / 1.5 ui-monospace,
+    SFMono-Regular,
+    Consolas,
+    monospace;
+  overflow-wrap: anywhere;
+}
+
+.syntax-keyword,
+.syntax-flag {
+  color: #c6a7ff;
+}
+
+.syntax-string {
+  color: #c8ff4d;
+}
+
+.syntax-command,
+.syntax-component {
+  color: #67e7ff;
+}
+
+.syntax-property {
+  color: #ffd166;
+}
+
+.syntax-number {
+  color: #ff9d76;
+}
+
+.syntax-punctuation {
+  color: #9fa8b9;
+}
+
+.syntax-variable,
+.syntax-value {
+  color: #eef1f6;
 }
 
 .install-card ol {
@@ -726,9 +844,8 @@ a {
   letter-spacing: -0.03em;
 }
 
-.usage-example pre {
+.usage-example .studio-code-block {
   margin: 0;
-  padding: 18px;
 }
 
 footer {
@@ -839,7 +956,7 @@ footer p {
   .install-card {
     padding: 22px 18px;
   }
-  .install-card code {
+  .studio-code-block code {
     font-size: 10px;
   }
   .usage-example {
@@ -847,8 +964,8 @@ footer p {
     padding: 20px 18px;
     gap: 16px;
   }
-  .usage-example code {
-    font-size: 10px;
+  .studio-code-block pre {
+    padding: 16px;
   }
   footer {
     min-height: 72px;

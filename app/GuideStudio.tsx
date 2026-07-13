@@ -1,17 +1,20 @@
 "use client";
 
+import { Check, Copy } from "lucide-react";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  type GuideCharacterId,
   type GuideExpression,
-  getGuideCharacter,
-  guideCharacters,
   guideExpressions,
-  isGuideCharacterId,
   isGuideExpression,
   MimoGuide,
 } from "../packages/mimo-guide/src";
+import {
+  type GuideCharacterId,
+  getGuideCharacter,
+  guideCharacters,
+  isGuideCharacterId,
+} from "../packages/mimo-guide/src/characters";
 
 const expressions = [
   { id: "idle", label: "Idle", symbol: "✦", event: "SYSTEM_READY", color: "#c8ff4d" },
@@ -41,6 +44,120 @@ type GuideState = {
   character?: GuideCharacterId;
 };
 
+type StudioCodeBlockProps = {
+  code: string;
+  language: "shell" | "tsx";
+};
+
+const tsxKeywords = new Set(["as", "const", "export", "from", "import", "type"]);
+const tsxProperties = new Set([
+  "character",
+  "expression",
+  "expressionShiftCooldown",
+  "intensity",
+  "size",
+]);
+
+function syntaxClass(token: string, language: StudioCodeBlockProps["language"]) {
+  if (/^\s+$/.test(token)) return undefined;
+  if (/^["']/.test(token)) return "syntax-string";
+  if (/^\d+$/.test(token)) return "syntax-number";
+
+  if (language === "shell") {
+    if (token.startsWith("--")) return "syntax-flag";
+    if (token === "npx" || token === "add") return "syntax-command";
+    if (token.startsWith("github:")) return "syntax-string";
+    if (/^[./]|[{}=<>/]$/.test(token)) return "syntax-punctuation";
+    return "syntax-value";
+  }
+
+  if (tsxKeywords.has(token)) return "syntax-keyword";
+  if (/^[A-Z]/.test(token)) return "syntax-component";
+  if (tsxProperties.has(token)) return "syntax-property";
+  if (/^[{}()[\]<>/=;,.]+$/.test(token)) return "syntax-punctuation";
+  return "syntax-variable";
+}
+
+function highlightCode(code: string, language: StudioCodeBlockProps["language"]) {
+  const tokens = code.match(
+    /"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|--[a-z-]+|[A-Za-z_$@.][\w$:@./-]*|\d+|\s+|[^\s]/g,
+  ) ?? [code];
+
+  let offset = 0;
+  return tokens.map((token) => {
+    const className = syntaxClass(token, language);
+    const key = `${offset}-${token}`;
+    offset += token.length;
+    return className ? (
+      <span className={className} key={key}>
+        {token}
+      </span>
+    ) : (
+      token
+    );
+  });
+}
+
+async function writeCodeToClipboard(code: string) {
+  try {
+    await navigator.clipboard.writeText(code);
+    return;
+  } catch {
+    const textarea = document.createElement("textarea");
+    textarea.value = code;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.select();
+    const copied = document.execCommand("copy");
+    textarea.remove();
+    if (!copied) throw new Error("Clipboard is unavailable");
+  }
+}
+
+function StudioCodeBlock({ code, language }: StudioCodeBlockProps) {
+  const [copyState, setCopyState] = useState<"idle" | "copied" | "error">("idle");
+  const resetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(
+    () => () => {
+      if (resetTimer.current) clearTimeout(resetTimer.current);
+    },
+    [],
+  );
+
+  const copyCode = async () => {
+    try {
+      await writeCodeToClipboard(code);
+      setCopyState("copied");
+    } catch {
+      setCopyState("error");
+    }
+
+    if (resetTimer.current) clearTimeout(resetTimer.current);
+    resetTimer.current = setTimeout(() => setCopyState("idle"), 1800);
+  };
+
+  const copyLabel =
+    copyState === "copied" ? "Copied" : copyState === "error" ? "Try again" : "Copy";
+
+  return (
+    <div className="studio-code-block" data-language={language}>
+      <div className="studio-code-toolbar">
+        <span>{language}</span>
+        <button type="button" onClick={copyCode} aria-label={`Copy ${language} code`}>
+          {copyState === "copied" ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
+          <span aria-live="polite">{copyLabel}</span>
+        </button>
+      </div>
+      <pre>
+        <code>{highlightCode(code, language)}</code>
+      </pre>
+    </div>
+  );
+}
+
 export default function GuideStudio() {
   const [expression, setExpression] = useState<GuideExpression>("idle");
   const [intensity, setIntensity] = useState(1);
@@ -53,6 +170,15 @@ export default function GuideStudio() {
     [expression],
   );
   const activeCharacter = getGuideCharacter(characterId);
+  const installCommand = `npx --yes github:markorusic/mimo-avatar-studio add . --character ${activeCharacter.id}`;
+  const usageCode = `import { MimoGuide } from "@/components/mimo-guide";
+import guideCharacter from "@/components/mimo-guide/characters/${activeCharacter.id}";
+
+<MimoGuide
+  character={guideCharacter}
+  expression="thinking"
+  expressionShiftCooldown={240}
+/>`;
 
   const applyGuideState = useCallback((next: GuideState) => {
     if (!next.expression && !next.character) return;
@@ -296,10 +422,10 @@ export default function GuideStudio() {
       <section className="install-section" id="install">
         <div className="install-heading">
           <p className="section-kicker">COPY-OWNED · SHADCN-STYLE</p>
-          <h2>Bring the full roster into your React app.</h2>
+          <h2>Bring one guide into your React app.</h2>
           <p>
-            Install the registry-driven component and all local character sprites directly into your
-            project. No account, hosted runtime, or proprietary animation tool required.
+            Install the reusable component with only the selected character and its eight local
+            sprites. No account, hosted runtime, or proprietary animation tool required.
           </p>
         </div>
 
@@ -309,14 +435,13 @@ export default function GuideStudio() {
               <span>CLI</span>
               <strong>Recommended</strong>
             </div>
-            <h3>One command</h3>
+            <h3>One character, one command</h3>
             <p>
               Run this from your React project. The installer detects shadcn aliases, places the
-              component in your components folder, and copies sprites to public.
+              reusable component in your components folder, and copies only {activeCharacter.label}
+              &apos;s sprites to public.
             </p>
-            <pre>
-              <code>npx --yes github:markorusic/mimo-avatar-studio add .</code>
-            </pre>
+            <StudioCodeBlock code={installCommand} language="shell" />
             <p className="install-note">
               Existing customized files are protected unless you add <code>--force</code>.
             </p>
@@ -327,17 +452,17 @@ export default function GuideStudio() {
               <span>MANUAL</span>
               <strong>Copy and own</strong>
             </div>
-            <h3>Four source files + character packs</h3>
+            <h3>Reusable core + one character</h3>
             <ol>
               <li>
-                Copy <code>packages/mimo-guide/src</code> into your component folder.
+                Copy the four core files from <code>packages/mimo-guide/src</code>.
               </li>
               <li>
-                Copy <code>packages/mimo-guide/assets</code> to <code>public/mimo-guides</code>.
+                Copy <code>src/characters/{activeCharacter.id}.ts</code> beside the core.
               </li>
               <li>
-                Import <code>MimoGuide</code>, choose a registry character, and control its
-                expression.
+                Copy only <code>assets/{activeCharacter.id}</code> to{" "}
+                <code>public/mimo-guides/{activeCharacter.id}</code>.
               </li>
             </ol>
             <a
@@ -355,20 +480,12 @@ export default function GuideStudio() {
             <span>USE IT</span>
             <strong>Controlled React component</strong>
           </div>
-          <pre>
-            <code>{`import { MimoGuide, teslaCharacter } from "@/components/mimo-guide";
-
-<MimoGuide
-  character={teslaCharacter}
-  expression="thinking"
-  expressionShiftCooldown={240}
-/>`}</code>
-          </pre>
+          <StudioCodeBlock code={usageCode} language="tsx" />
         </div>
       </section>
 
       <footer>
-        <p>MIMO / ILLUSTRATED AVATAR KIT</p>
+        <p>MIMO / ILLUSTRATED GUIDE KIT</p>
         <p>4 characters · 8 expressions each · MIT licensed</p>
       </footer>
     </main>

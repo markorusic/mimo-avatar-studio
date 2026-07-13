@@ -17,7 +17,13 @@ test("prerenders the Studio with public installation docs", async () => {
   assert.match(html, /character-socrates/);
   assert.match(html, /character-tesla/);
   assert.match(html, /character-leonardo/);
-  assert.match(html, /Bring the full roster into your React app/);
+  assert.match(html, /Bring one guide into your React app/);
+  assert.match(html, /--character/);
+  assert.match(html, /aria-label="Copy shell code"/);
+  assert.match(html, /aria-label="Copy tsx code"/);
+  assert.match(html, /syntax-command/);
+  assert.match(html, /syntax-keyword/);
+  assert.match(html, /syntax-string/);
   assert.match(html, /github:markorusic\/mimo-avatar-studio/);
   assert.match(html, /href="\/canvas"/);
   assert.match(html, /og-wizard\.png/);
@@ -59,7 +65,7 @@ test("ships every registered character expression sprite", async () => {
   );
 });
 
-test("exposes only Mimo Guide names from the public component entrypoint", async () => {
+test("keeps the public component entrypoint independent of the character catalog", async () => {
   const publicEntrypoint = await readFile(
     new URL("../packages/mimo-guide/src/index.ts", import.meta.url),
     "utf8",
@@ -68,10 +74,9 @@ test("exposes only Mimo Guide names from the public component entrypoint", async
   assert.match(publicEntrypoint, /MimoGuide/);
   assert.match(publicEntrypoint, /GuideExpression/);
   assert.match(publicEntrypoint, /GuideCharacter/);
-  assert.match(publicEntrypoint, /guideCharacters/);
   assert.doesNotMatch(
     publicEntrypoint,
-    /SageAvatar|MimoAvatar|AvatarExpression|AvatarCharacter|avatarCharacters/,
+    /sageCharacter|socratesCharacter|teslaCharacter|leonardoCharacter|guideCharacters/,
   );
 });
 

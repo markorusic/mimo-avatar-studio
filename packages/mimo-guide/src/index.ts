@@ -1,17 +1,4 @@
-export type {
-  GuideCharacter,
-  GuideCharacterId,
-  RegisteredGuideCharacter,
-} from "./characters";
-export {
-  getGuideCharacter,
-  guideCharacters,
-  isGuideCharacterId,
-  leonardoCharacter,
-  sageCharacter,
-  socratesCharacter,
-  teslaCharacter,
-} from "./characters";
+export type { GuideCharacter } from "./guide-character";
 export type {
   GuideExpression,
   MimoGuideProps,

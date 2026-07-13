@@ -20,14 +20,13 @@ import {
   useRef,
   useState,
 } from "react";
+import { type GuideExpression, MimoGuide } from "@/packages/mimo-guide/src";
 import {
   type GuideCharacterId,
-  type GuideExpression,
   getGuideCharacter,
   guideCharacters,
   isGuideCharacterId,
-  MimoGuide,
-} from "@/packages/mimo-guide/src";
+} from "@/packages/mimo-guide/src/characters";
 
 const PAPER_COLOR = "#fffdf7";
 const PALETTE = ["#17181d", "#6651d8", "#f15b45", "#22a77a", "#e5a91a"];

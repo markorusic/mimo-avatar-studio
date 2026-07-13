@@ -23,15 +23,18 @@ Open `http://localhost:3000`.
 Run the public installer from the root of any React project:
 
 ```bash
-npx --yes github:markorusic/mimo-avatar-studio add .
+npx --yes github:markorusic/mimo-avatar-studio add . --character tesla
 ```
 
 It installs:
 
-- `mimo-guide.tsx`, `mimo-guide.module.css`, `characters.ts`, and `index.ts` in the project's
-  component directory.
-- All four eight-expression WebP character packs in `public/mimo-guides`.
+- The reusable `MimoGuide` core in the project's component directory.
+- `characters/tesla.ts` and only Tesla's eight WebP sprites in `public/mimo-guides/tesla`.
 - No npm dependencies and no Tailwind configuration.
+
+`--character` is required. Available values are `sage`, `socrates`, `tesla`,
+and `leonardo`. Run the command again with another value when a project needs a
+second character; the shared core remains unchanged.
 
 If the target has a shadcn `components.json`, the installer resolves its
 `aliases.components` setting through `tsconfig.json` or `jsconfig.json`.
@@ -43,14 +46,14 @@ files stop the entire operation before anything is written. Use `--force` only
 when you intentionally want to replace Mimo Guide files.
 
 ```bash
-npx --yes github:markorusic/mimo-avatar-studio add . --dry-run
-npx --yes github:markorusic/mimo-avatar-studio add . --force
+npx --yes github:markorusic/mimo-avatar-studio add . --character sage --dry-run
+npx --yes github:markorusic/mimo-avatar-studio add . --character sage --force
 ```
 
 When working from a clone of this repository, the equivalent local command is:
 
 ```bash
-npm run guide:add -- C:\path\to\your-react-app
+npm run guide:add -- /path/to/your-react-app --character sage
 ```
 
 ### Portable one-file kit
@@ -64,7 +67,7 @@ npm run guide:pack
 Then run it from the target project without an account or network access:
 
 ```bash
-npm exec --yes --offline --package=C:\path\to\mimo-guide-0.1.0.tgz -- mimo-guide add .
+npm exec --yes --offline --package=/path/to/mimo-guide-0.1.0.tgz -- mimo-guide add . --character socrates
 ```
 
 This is the shadcn-style distribution path for the illustrated guide roster.
@@ -80,9 +83,10 @@ Copy these files from `packages/mimo-guide`:
 ```text
 src/mimo-guide.tsx
 src/mimo-guide.module.css
-src/characters.ts
+src/guide-character.ts
 src/index.ts
-assets/<character>/*.webp -> public/mimo-guides/<character>/*.webp
+src/characters/<selected>.ts
+assets/<selected>/*.webp -> public/mimo-guides/<selected>/*.webp
 ```
 
 The package folder is deliberately self-contained, so copying it does not rely
@@ -94,11 +98,8 @@ on demo code elsewhere in this repository.
 "use client";
 
 import { useState } from "react";
-import {
-  MimoGuide,
-  teslaCharacter,
-  type GuideExpression,
-} from "@/components/mimo-guide";
+import { MimoGuide, type GuideExpression } from "@/components/mimo-guide";
+import teslaCharacter from "@/components/mimo-guide/characters/tesla";
 
 export function ProductGuide() {
   const [expression, setExpression] = useState<GuideExpression>("idle");
@@ -124,7 +125,7 @@ coalesced so the pop animation cannot continuously restart.
 
 Useful props include:
 
-- `character`: an entry from `guideCharacters` or your own compatible character object.
+- `character`: the selected character module or your own compatible character object.
 - `expression`: the controlled expression.
 - `size`: a number in pixels or any CSS width value.
 - `intensity`: motion multiplier from `0.2` to `3`.
@@ -146,15 +147,17 @@ properties prefixed with `--mimo-guide-`, and keyframes prefixed with
 
 Character additions are data-driven:
 
-1. Add one entry to `packages/mimo-guide/src/characters.ts` with an `id`, label,
-   role, stage/accent colors, and `/mimo-guides/<id>` asset path.
+1. Add `packages/mimo-guide/src/characters/<id>.ts` with its label, role,
+   stage/accent colors, and `/mimo-guides/<id>` asset path.
 2. Add the eight expression files to `packages/mimo-guide/assets/<id>/` using
    the existing expression names.
 3. Mirror that folder to `public/mimo-guides/<id>/` for this Studio repository.
+4. Export it from `packages/mimo-guide/src/characters/index.ts` so it appears in
+   the Studio and canvas catalogs.
 
-The reusable component, Studio selector, canvas selector, and public installer
-all consume the registry or discover the asset directory automatically. No new
-rendering branch is required.
+The reusable component remains character-agnostic. The Studio and canvas use
+the full internal catalog, while the installer copies only the explicitly
+selected character module and sprite folder.
 
 ## Send events to the demo
 

@@ -15,7 +15,7 @@ const EXPRESSIONS = [
   "angry",
   "sleepy",
 ];
-const SOURCE_FILES = ["mimo-guide.tsx", "mimo-guide.module.css", "characters.ts", "index.ts"];
+const CORE_FILES = ["mimo-guide.tsx", "mimo-guide.module.css", "guide-character.ts", "index.ts"];
 
 const PACKAGE_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -24,9 +24,10 @@ function printHelp() {
 Mimo Guide installer
 
 Usage:
-  mimo-guide add [project] [options]
+  mimo-guide add [project] --character <id> [options]
 
 Options:
+  --character <id>       Character to install (required)
   --component-dir <path>  Component destination relative to the project
   --public-dir <path>     Public folder relative to the project (default: public)
   --dry-run               Show what would change without writing files
@@ -34,9 +35,9 @@ Options:
   -h, --help              Show this help
 
 Examples:
-  mimo-guide add .
-  mimo-guide add ../my-app --dry-run
-  mimo-guide add . --component-dir src/components/mimo-guide
+  mimo-guide add . --character sage
+  mimo-guide add ../my-app --character tesla --dry-run
+  mimo-guide add . --character socrates --component-dir src/components/mimo-guide
 `);
 }
 
@@ -47,6 +48,7 @@ function parseArgs(argv) {
 
   const options = {
     target: undefined,
+    character: undefined,
     componentDir: undefined,
     publicDir: "public",
     dryRun: false,
@@ -59,11 +61,16 @@ function parseArgs(argv) {
       options.dryRun = true;
     } else if (argument === "--force") {
       options.force = true;
-    } else if (argument === "--component-dir" || argument === "--public-dir") {
+    } else if (
+      argument === "--character" ||
+      argument === "--component-dir" ||
+      argument === "--public-dir"
+    ) {
       const value = args[index + 1];
       if (!value || value.startsWith("--")) {
-        throw new Error(`${argument} requires a path.`);
+        throw new Error(`${argument} requires a value.`);
       }
+      if (argument === "--character") options.character = value;
       if (argument === "--component-dir") options.componentDir = value;
       if (argument === "--public-dir") options.publicDir = value;
       index += 1;
@@ -202,23 +209,46 @@ async function install(options) {
     .filter((entry) => entry.isDirectory())
     .map((entry) => entry.name)
     .sort();
+  if (!options.character) {
+    throw new Error(
+      `Choose one character with --character <id>. Available: ${characterIds.join(", ")}`,
+    );
+  }
+  if (!characterIds.includes(options.character)) {
+    throw new Error(
+      `Unknown character "${options.character}". Available: ${characterIds.join(", ")}`,
+    );
+  }
+
+  const selectedCharacter = options.character;
+  const selectedCharacterModule = path.join(
+    PACKAGE_ROOT,
+    "src",
+    "characters",
+    `${selectedCharacter}.ts`,
+  );
+  if (!(await exists(selectedCharacterModule))) {
+    throw new Error(`Character "${selectedCharacter}" is missing its source module.`);
+  }
   const operations = [
-    ...SOURCE_FILES.map((name) => ({
+    ...CORE_FILES.map((name) => ({
       source: path.join(PACKAGE_ROOT, "src", name),
       destination: path.join(component.directory, name),
     })),
-    ...characterIds.flatMap((characterId) =>
-      EXPRESSIONS.map((expression) => ({
-        source: path.join(packageAssetsDirectory, characterId, `${expression}.webp`),
-        destination: path.resolve(
-          projectRoot,
-          options.publicDir,
-          "mimo-guides",
-          characterId,
-          `${expression}.webp`,
-        ),
-      })),
-    ),
+    {
+      source: selectedCharacterModule,
+      destination: path.join(component.directory, "characters", `${selectedCharacter}.ts`),
+    },
+    ...EXPRESSIONS.map((expression) => ({
+      source: path.join(packageAssetsDirectory, selectedCharacter, `${expression}.webp`),
+      destination: path.resolve(
+        projectRoot,
+        options.publicDir,
+        "mimo-guides",
+        selectedCharacter,
+        `${expression}.webp`,
+      ),
+    })),
   ];
 
   const states = await Promise.all(
@@ -260,10 +290,13 @@ async function install(options) {
   );
   console.log("\nUse it like this:\n");
   console.log(
-    `import { MimoGuide, guideCharacters, type GuideExpression } from "${component.importPath ?? relativePath(projectRoot, component.directory)}";`,
+    `import { MimoGuide, type GuideExpression } from "${component.importPath ?? relativePath(projectRoot, component.directory)}";`,
   );
-  console.log('\n<MimoGuide character={guideCharacters[1]} expression="thinking" />');
-  console.log(`\nInstalled characters: ${characterIds.join(", ")}`);
+  console.log(
+    `import guideCharacter from "${component.importPath ?? relativePath(projectRoot, component.directory)}/characters/${selectedCharacter}";`,
+  );
+  console.log('\n<MimoGuide character={guideCharacter} expression="thinking" />');
+  console.log(`\nInstalled character: ${selectedCharacter}`);
   console.log(`\nAvailable expressions: ${EXPRESSIONS.join(", ")}`);
 }
 
