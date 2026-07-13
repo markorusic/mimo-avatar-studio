@@ -48,6 +48,8 @@ export type SageAvatarProps = {
   label?: string;
   decorative?: boolean;
   transitionDuration?: number;
+  animateExpressionShift?: boolean;
+  showExpressionEffects?: boolean;
 };
 
 export function isSageExpression(value: unknown): value is SageExpression {
@@ -65,11 +67,19 @@ export function SageAvatar({
   label,
   decorative = false,
   transitionDuration = 520,
+  animateExpressionShift = true,
+  showExpressionEffects = true,
 }: SageAvatarProps) {
   const previousExpression = useRef(expression);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
+    if (!animateExpressionShift) {
+      previousExpression.current = expression;
+      const resetTimer = window.setTimeout(() => setIsTransitioning(false), 0);
+      return () => window.clearTimeout(resetTimer);
+    }
+
     if (previousExpression.current === expression) return;
 
     previousExpression.current = expression;
@@ -85,7 +95,7 @@ export function SageAvatar({
       cancelAnimationFrame(frame);
       window.clearTimeout(timer);
     };
-  }, [expression, transitionDuration]);
+  }, [animateExpressionShift, expression, transitionDuration]);
 
   const resolvedAssetPath = (assetPath ?? character.assetPath).replace(/\/$/, "");
   const extension = character.assetExtension ?? "webp";
@@ -97,11 +107,12 @@ export function SageAvatar({
     <div
       className={[
         styles["sage-avatar-scene"],
-        isTransitioning ? styles["sage-avatar-transitioning"] : "",
+        animateExpressionShift && isTransitioning ? styles["sage-avatar-transitioning"] : "",
         className ?? "",
       ].filter(Boolean).join(" ")}
       data-expression={expression}
       data-character={character.id}
+      data-expression-shift={animateExpressionShift ? "on" : "off"}
       style={{
         ...style,
         "--sage-avatar-intensity": safeIntensity,
@@ -113,9 +124,13 @@ export function SageAvatar({
     >
       <div className={`${styles["sage-avatar-orbit"]} ${styles["sage-avatar-orbit-one"]}`} aria-hidden="true" />
       <div className={`${styles["sage-avatar-orbit"]} ${styles["sage-avatar-orbit-two"]}`} aria-hidden="true" />
-      <div className={`${styles["sage-avatar-signal"]} ${styles["sage-avatar-signal-left"]}`} aria-hidden="true"><i /><i /><i /></div>
-      <div className={styles["sage-avatar-thoughts"]} aria-hidden="true"><i /><i /><i /></div>
-      <div className={styles["sage-avatar-sleep-notes"]} aria-hidden="true"><span>z</span><span>z</span><span>z</span></div>
+      {showExpressionEffects && (
+        <>
+          <div className={`${styles["sage-avatar-signal"]} ${styles["sage-avatar-signal-left"]}`} aria-hidden="true"><i /><i /><i /></div>
+          <div className={styles["sage-avatar-thoughts"]} aria-hidden="true"><i /><i /><i /></div>
+          <div className={styles["sage-avatar-sleep-notes"]} aria-hidden="true"><span>z</span><span>z</span><span>z</span></div>
+        </>
+      )}
 
       <div className={styles["sage-avatar-sprite-rig"]}>
         <div className={styles["sage-avatar-sprite-shadow"]} aria-hidden="true" />
