@@ -53,11 +53,12 @@ const [expression, setExpression] = useState<ExpressionId>("idle");
 ```
 
 The component uses a CSS module, so it can be placed inside a Tailwind app
-without changing the Tailwind configuration. Its source class names, custom
-properties, and animation names are also explicitly prefixed with `sageAvatar`
-or `--sage-avatar-`, so they remain isolated if the CSS is moved into a global
-stylesheet later. A future illustrated character only needs the same eight
-filenames and a new `SpriteCharacter` definition with its own `assetPath`.
+without changing the Tailwind configuration. Its source class names use the
+`sage-avatar-` prefix in kebab-case, custom properties use `--sage-avatar-`, and
+animation names use `sageAvatar`, so they remain isolated if the CSS is moved
+into a global stylesheet later. A future illustrated character only needs the
+same eight filenames and a new `SpriteCharacter` definition with its own
+`assetPath`.
 
 ## Checks
 

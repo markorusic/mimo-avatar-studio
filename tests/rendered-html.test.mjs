@@ -60,7 +60,7 @@ test("keeps Sage avatar styles fully namespaced", async () => {
     .map((match) => match[1]);
 
   assert.ok(classNames.length > 0);
-  assert.ok(classNames.every((className) => className.startsWith("sageAvatar")));
+  assert.ok(classNames.every((className) => /^sage-avatar(?:-[a-z]+)+$/.test(className)));
   assert.match(css, /--sage-avatar-intensity/);
   assert.doesNotMatch(css, /--(?:intensity|avatar-)/);
   assert.doesNotMatch(css, /@keyframes\s+(?!sageAvatar)/);

@@ -1,4 +1,4 @@
-.sageAvatarScene {
+.sage-avatar-scene {
   --sage-avatar-intensity: 1;
   --sage-avatar-ink: #17191f;
   --sage-avatar-highlight: #c8ff4d;
@@ -9,20 +9,20 @@
   isolation: isolate;
 }
 
-.sageAvatarOrbit {
+.sage-avatar-orbit {
   position: absolute;
   border: 1px solid rgba(255,255,255,0.34);
   border-radius: 50%;
   pointer-events: none;
 }
 
-.sageAvatarOrbitOne {
+.sage-avatar-orbit-one {
   width: min(470px, 78%);
   aspect-ratio: 1;
   animation: sageAvatarOrbitRotate 17s linear infinite;
 }
 
-.sageAvatarOrbitOne::after {
+.sage-avatar-orbit-one::after {
   content: "";
   width: 12px;
   height: 12px;
@@ -34,7 +34,7 @@
   box-shadow: 0 0 0 6px rgba(200,255,77,0.17);
 }
 
-.sageAvatarOrbitTwo {
+.sage-avatar-orbit-two {
   width: min(570px, 92%);
   aspect-ratio: 1;
   border-style: dashed;
@@ -42,7 +42,7 @@
   animation: sageAvatarOrbitRotate 28s linear infinite reverse;
 }
 
-.sageAvatarSpriteRig {
+.sage-avatar-sprite-rig {
   width: min(520px, 94%);
   aspect-ratio: 1;
   position: relative;
@@ -52,7 +52,7 @@
   will-change: transform;
 }
 
-.sageAvatarExpressionSprite {
+.sage-avatar-expression-sprite {
   width: 100%;
   height: 100%;
   position: absolute;
@@ -69,13 +69,13 @@
   will-change: opacity, transform;
 }
 
-.sageAvatarExpressionSprite.sageAvatarActive {
+.sage-avatar-expression-sprite.sage-avatar-active {
   z-index: 2;
   opacity: 1;
   transform: scale(1);
 }
 
-.sageAvatarSpriteShadow {
+.sage-avatar-sprite-shadow {
   width: 58%;
   height: 7%;
   position: absolute;
@@ -89,9 +89,9 @@
   animation: sageAvatarShadowBreathe calc(3s / var(--sage-avatar-intensity)) ease-in-out infinite;
 }
 
-.sageAvatarSignal,
-.sageAvatarThoughts,
-.sageAvatarSleepNotes {
+.sage-avatar-signal,
+.sage-avatar-thoughts,
+.sage-avatar-sleep-notes {
   position: absolute;
   z-index: 7;
   opacity: 0;
@@ -99,13 +99,13 @@
   pointer-events: none;
 }
 
-.sageAvatarSignalLeft {
+.sage-avatar-signal-left {
   left: 7%;
   top: 34%;
   transform: rotate(-10deg);
 }
 
-.sageAvatarSignal i {
+.sage-avatar-signal i {
   display: block;
   width: 28px;
   height: 15px;
@@ -117,17 +117,17 @@
   animation: sageAvatarSignalWave calc(1.1s / var(--sage-avatar-intensity)) ease-out infinite;
 }
 
-.sageAvatarSignal i:nth-child(2) { animation-delay: 0.14s; transform: scale(1.35); }
-.sageAvatarSignal i:nth-child(3) { animation-delay: 0.28s; transform: scale(1.7); }
+.sage-avatar-signal i:nth-child(2) { animation-delay: 0.14s; transform: scale(1.35); }
+.sage-avatar-signal i:nth-child(3) { animation-delay: 0.28s; transform: scale(1.7); }
 
-.sageAvatarThoughts {
+.sage-avatar-thoughts {
   right: 7%;
   top: 18%;
   width: 100px;
   height: 100px;
 }
 
-.sageAvatarThoughts i {
+.sage-avatar-thoughts i {
   position: absolute;
   border: 3px solid var(--sage-avatar-ink);
   border-radius: 50%;
@@ -135,59 +135,59 @@
   animation: sageAvatarThoughtFloat calc(1.8s / var(--sage-avatar-intensity)) ease-in-out infinite alternate;
 }
 
-.sageAvatarThoughts i:nth-child(1) { width: 17px; height: 17px; left: 2px; bottom: 4px; }
-.sageAvatarThoughts i:nth-child(2) { width: 28px; height: 28px; left: 24px; bottom: 24px; animation-delay: -0.5s; }
-.sageAvatarThoughts i:nth-child(3) { width: 47px; height: 47px; right: 2px; top: 2px; animation-delay: -1s; }
+.sage-avatar-thoughts i:nth-child(1) { width: 17px; height: 17px; left: 2px; bottom: 4px; }
+.sage-avatar-thoughts i:nth-child(2) { width: 28px; height: 28px; left: 24px; bottom: 24px; animation-delay: -0.5s; }
+.sage-avatar-thoughts i:nth-child(3) { width: 47px; height: 47px; right: 2px; top: 2px; animation-delay: -1s; }
 
-.sageAvatarSleepNotes {
+.sage-avatar-sleep-notes {
   right: 8%;
   top: 22%;
   color: var(--sage-avatar-highlight);
   font-weight: 950;
 }
 
-.sageAvatarSleepNotes span {
+.sage-avatar-sleep-notes span {
   position: absolute;
   animation: sageAvatarSleepNote calc(2.4s / var(--sage-avatar-intensity)) ease-out infinite;
 }
 
-.sageAvatarSleepNotes span:nth-child(1) { font-size: 20px; animation-delay: 0s; }
-.sageAvatarSleepNotes span:nth-child(2) { font-size: 28px; animation-delay: 0.7s; }
-.sageAvatarSleepNotes span:nth-child(3) { font-size: 38px; animation-delay: 1.4s; }
+.sage-avatar-sleep-notes span:nth-child(1) { font-size: 20px; animation-delay: 0s; }
+.sage-avatar-sleep-notes span:nth-child(2) { font-size: 28px; animation-delay: 0.7s; }
+.sage-avatar-sleep-notes span:nth-child(3) { font-size: 38px; animation-delay: 1.4s; }
 
-.sageAvatarScene[data-expression="listening"] .sageAvatarSignal { opacity: 1; }
-.sageAvatarScene[data-expression="thinking"] .sageAvatarThoughts { opacity: 1; }
-.sageAvatarScene[data-expression="sleepy"] .sageAvatarSleepNotes { opacity: 1; }
+.sage-avatar-scene[data-expression="listening"] .sage-avatar-signal { opacity: 1; }
+.sage-avatar-scene[data-expression="thinking"] .sage-avatar-thoughts { opacity: 1; }
+.sage-avatar-scene[data-expression="sleepy"] .sage-avatar-sleep-notes { opacity: 1; }
 
-.sageAvatarScene[data-expression="happy"] .sageAvatarSpriteRig {
+.sage-avatar-scene[data-expression="happy"] .sage-avatar-sprite-rig {
   animation: sageAvatarHappyBounce calc(0.72s / var(--sage-avatar-intensity)) ease-in-out infinite alternate;
 }
 
-.sageAvatarScene[data-expression="listening"] .sageAvatarSpriteRig {
+.sage-avatar-scene[data-expression="listening"] .sage-avatar-sprite-rig {
   animation: sageAvatarListenLean calc(1.3s / var(--sage-avatar-intensity)) ease-in-out infinite alternate;
 }
 
-.sageAvatarScene[data-expression="thinking"] .sageAvatarSpriteRig {
+.sage-avatar-scene[data-expression="thinking"] .sage-avatar-sprite-rig {
   animation: sageAvatarThink calc(2.2s / var(--sage-avatar-intensity)) ease-in-out infinite alternate;
 }
 
-.sageAvatarScene[data-expression="surprised"] .sageAvatarSpriteRig {
+.sage-avatar-scene[data-expression="surprised"] .sage-avatar-sprite-rig {
   animation: sageAvatarSurprisePop calc(1.5s / var(--sage-avatar-intensity)) ease-in-out infinite;
 }
 
-.sageAvatarScene[data-expression="sad"] .sageAvatarSpriteRig {
+.sage-avatar-scene[data-expression="sad"] .sage-avatar-sprite-rig {
   animation: sageAvatarSad calc(3.2s / var(--sage-avatar-intensity)) ease-in-out infinite alternate;
 }
 
-.sageAvatarScene[data-expression="angry"] .sageAvatarSpriteRig {
+.sage-avatar-scene[data-expression="angry"] .sage-avatar-sprite-rig {
   animation: sageAvatarAngryShake calc(0.55s / var(--sage-avatar-intensity)) linear infinite;
 }
 
-.sageAvatarScene[data-expression="sleepy"] .sageAvatarSpriteRig {
+.sage-avatar-scene[data-expression="sleepy"] .sage-avatar-sprite-rig {
   animation: sageAvatarSleepySway calc(3.8s / var(--sage-avatar-intensity)) ease-in-out infinite alternate;
 }
 
-.sageAvatarTransitioning .sageAvatarSpriteRig {
+.sage-avatar-transitioning .sage-avatar-sprite-rig {
   animation: sageAvatarExpressionShift 0.52s cubic-bezier(.2,.9,.22,1.18);
 }
 
@@ -207,7 +207,7 @@
 @keyframes sageAvatarSad { from { transform: translateY(9px) rotate(0.8deg); } to { transform: translateY(13px) rotate(-0.5deg); } }
 
 @media (max-width: 680px) {
-  .sageAvatarScene {
+  .sage-avatar-scene {
     min-height: 465px;
     transform: scale(0.88);
     margin: -20px -30px;
@@ -215,9 +215,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sageAvatarScene *,
-  .sageAvatarScene *::before,
-  .sageAvatarScene *::after {
+  .sage-avatar-scene *,
+  .sage-avatar-scene *::before,
+  .sage-avatar-scene *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
