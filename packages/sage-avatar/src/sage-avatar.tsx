@@ -1,7 +1,5 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element -- This portable component cannot depend on next/image. */
-
 import {
   useEffect,
   useRef,
