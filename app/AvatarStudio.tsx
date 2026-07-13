@@ -1,12 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import SpriteAvatar, {
-  expressionIds,
-  isExpression,
+import SageAvatar, {
+  sageExpressions,
+  isSageExpression,
   sageCharacter,
-  type ExpressionId,
-} from "./SpriteAvatar";
+  type SageExpression,
+} from "../packages/sage-avatar/src/sage-avatar";
 
 const expressions = [
   { id: "idle", label: "Idle", symbol: "✦", event: "SYSTEM_READY", color: "#c8ff4d" },
@@ -22,15 +22,15 @@ const expressions = [
 declare global {
   interface Window {
     avatarController?: {
-      setExpression: (expression: ExpressionId) => void;
-      setState: (state: { expression?: ExpressionId }) => void;
-      expressions: readonly ExpressionId[];
+      setExpression: (expression: SageExpression) => void;
+      setState: (state: { expression?: SageExpression }) => void;
+      expressions: readonly SageExpression[];
     };
   }
 }
 
 export default function AvatarStudio() {
-  const [expression, setExpression] = useState<ExpressionId>("idle");
+  const [expression, setExpression] = useState<SageExpression>("idle");
   const [intensity, setIntensity] = useState(1);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [autoPlay, setAutoPlay] = useState(false);
@@ -48,27 +48,27 @@ export default function AvatarStudio() {
     transitionTimer.current = setTimeout(() => setIsTransitioning(false), 520);
   }, []);
 
-  const applyAvatarState = useCallback((next: { expression?: ExpressionId }) => {
+  const applyAvatarState = useCallback((next: { expression?: SageExpression }) => {
     if (!next.expression) return;
     beginTransition();
     setExpression(next.expression);
     setEventCount((count) => count + 1);
   }, [beginTransition]);
 
-  const triggerExpression = useCallback((next: ExpressionId) => {
+  const triggerExpression = useCallback((next: SageExpression) => {
     applyAvatarState({ expression: next });
   }, [applyAvatarState]);
 
   useEffect(() => {
     const receiveState = (value: unknown) => {
-      if (isExpression(value)) {
+      if (isSageExpression(value)) {
         applyAvatarState({ expression: value });
         return;
       }
       if (typeof value !== "object" || value === null) return;
       const payload = value as { expression?: unknown };
       applyAvatarState({
-        expression: isExpression(payload.expression) ? payload.expression : undefined,
+        expression: isSageExpression(payload.expression) ? payload.expression : undefined,
       });
     };
 
@@ -88,7 +88,7 @@ export default function AvatarStudio() {
     window.avatarController = {
       setExpression: triggerExpression,
       setState: applyAvatarState,
-      expressions: expressionIds,
+      expressions: sageExpressions,
     };
     window.addEventListener("avatar:expression", onCustomEvent);
     window.addEventListener("avatar:state", onCustomEvent);
@@ -107,8 +107,8 @@ export default function AvatarStudio() {
     if (!autoPlay) return;
     const interval = setInterval(() => {
       setExpression((current) => {
-        const currentIndex = expressionIds.indexOf(current);
-        const next = expressionIds[(currentIndex + 1) % expressionIds.length];
+        const currentIndex = sageExpressions.indexOf(current);
+        const next = sageExpressions[(currentIndex + 1) % sageExpressions.length];
         beginTransition();
         setEventCount((count) => count + 1);
         return next;
@@ -155,10 +155,10 @@ export default function AvatarStudio() {
             <span>LIVE AVATAR · SAGE</span>
             <span className="coordinates">EVENT #{String(eventCount).padStart(3, "0")}</span>
           </div>
-          <SpriteAvatar
+          <SageAvatar
             expression={expression}
             intensity={intensity}
-            transitioning={isTransitioning}
+            className="studio-avatar"
           />
           <div className="now-playing">
             <div>

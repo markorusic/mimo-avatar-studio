@@ -1,0 +1,19 @@
+{
+  "name": "sage-avatar-kit",
+  "version": "0.1.0",
+  "description": "A portable illustrated Sage avatar with animated expressions.",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "sage-avatar": "./bin/sage-avatar.mjs"
+  },
+  "files": [
+    "assets",
+    "bin",
+    "src",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  }
+}

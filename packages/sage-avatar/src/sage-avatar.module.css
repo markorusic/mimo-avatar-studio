@@ -1,8 +1,10 @@
 .sage-avatar-scene {
   --sage-avatar-intensity: 1;
+  --sage-avatar-size: 520px;
   --sage-avatar-ink: #17191f;
   --sage-avatar-highlight: #c8ff4d;
-  min-height: 540px;
+  width: min(100%, var(--sage-avatar-size));
+  aspect-ratio: 1;
   position: relative;
   display: grid;
   place-items: center;
@@ -205,14 +207,6 @@
 @keyframes sageAvatarSleepNote { 0% { opacity: 0; transform: translate(0, 28px) scale(0.7) rotate(-8deg); } 25% { opacity: 1; } 100% { opacity: 0; transform: translate(65px, -60px) scale(1.25) rotate(8deg); } }
 @keyframes sageAvatarThink { from { transform: translateY(3px) rotate(-0.7deg); } to { transform: translateY(-5px) rotate(0.7deg); } }
 @keyframes sageAvatarSad { from { transform: translateY(9px) rotate(0.8deg); } to { transform: translateY(13px) rotate(-0.5deg); } }
-
-@media (max-width: 680px) {
-  .sage-avatar-scene {
-    min-height: 465px;
-    transform: scale(0.88);
-    margin: -20px -30px;
-  }
-}
 
 @media (prefers-reduced-motion: reduce) {
   .sage-avatar-scene *,

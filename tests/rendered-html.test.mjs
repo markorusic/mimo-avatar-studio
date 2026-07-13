@@ -53,7 +53,7 @@ test("ships every Sage expression sprite", async () => {
 
 test("keeps Sage avatar styles fully namespaced", async () => {
   const css = await readFile(
-    new URL("../app/SpriteAvatar.module.css", import.meta.url),
+    new URL("../packages/sage-avatar/src/sage-avatar.module.css", import.meta.url),
     "utf8",
   );
   const classNames = [...css.matchAll(/\.([A-Za-z][A-Za-z0-9_-]*)/g)]
@@ -64,4 +64,25 @@ test("keeps Sage avatar styles fully namespaced", async () => {
   assert.match(css, /--sage-avatar-intensity/);
   assert.doesNotMatch(css, /--(?:intensity|avatar-)/);
   assert.doesNotMatch(css, /@keyframes\s+(?!sageAvatar)/);
+});
+
+test("keeps the distributable and demo sprite packs identical", async () => {
+  const expressions = [
+    "idle",
+    "happy",
+    "listening",
+    "thinking",
+    "surprised",
+    "sad",
+    "angry",
+    "sleepy",
+  ];
+
+  for (const expression of expressions) {
+    const [demoSprite, kitSprite] = await Promise.all([
+      readFile(new URL(`../public/avatars/sage/${expression}.webp`, import.meta.url)),
+      readFile(new URL(`../packages/sage-avatar/assets/${expression}.webp`, import.meta.url)),
+    ]);
+    assert.ok(demoSprite.equals(kitSprite), `${expression} sprite differs`);
+  }
 });
