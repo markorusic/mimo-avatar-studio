@@ -102,7 +102,8 @@ export function AssistantAvatar() {
 
 Available expressions are `idle`, `happy`, `listening`, `thinking`,
 `surprised`, `sad`, `angry`, and `sleepy`. Expression changes automatically
-crossfade and replay the transition animation.
+crossfade and replay the transition animation. Rapid expression changes are
+coalesced so the pop animation cannot continuously restart.
 
 Useful props include:
 
@@ -110,6 +111,11 @@ Useful props include:
 - `size`: a number in pixels or any CSS width value.
 - `intensity`: motion multiplier from `0.2` to `3`.
 - `assetPath`: override `/avatars/sage` when assets are served elsewhere.
+- `animateExpressionShift`: disable the scale-up pop while keeping expression
+  crossfades.
+- `expressionShiftCooldown`: quiet time in milliseconds between pop animations;
+  defaults to `240`.
+- `transitionDuration`: how long the pop remains active in milliseconds.
 - `className` and `style`: compose it inside cards, dialogs, or shadcn layouts.
 - `decorative`: hide it from assistive technology when adjacent text already
   describes the state.

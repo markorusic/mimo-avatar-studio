@@ -49,6 +49,7 @@ export type SageAvatarProps = {
   decorative?: boolean;
   transitionDuration?: number;
   animateExpressionShift?: boolean;
+  expressionShiftCooldown?: number;
   showExpressionEffects?: boolean;
 };
 
@@ -68,14 +69,39 @@ export function SageAvatar({
   decorative = false,
   transitionDuration = 520,
   animateExpressionShift = true,
+  expressionShiftCooldown = 240,
   showExpressionEffects = true,
 }: SageAvatarProps) {
   const previousExpression = useRef(expression);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const transitionAvailableAt = useRef(0);
+  const transitionFrame = useRef<number | null>(null);
+  const transitionTimer = useRef<number | null>(null);
+  const queuedTransitionTimer = useRef<number | null>(null);
 
   useEffect(() => {
+    const clearScheduledTransition = () => {
+      if (queuedTransitionTimer.current !== null) {
+        window.clearTimeout(queuedTransitionTimer.current);
+        queuedTransitionTimer.current = null;
+      }
+    };
+
     if (!animateExpressionShift) {
       previousExpression.current = expression;
+      transitionAvailableAt.current = 0;
+      clearScheduledTransition();
+
+      if (transitionFrame.current !== null) {
+        cancelAnimationFrame(transitionFrame.current);
+        transitionFrame.current = null;
+      }
+
+      if (transitionTimer.current !== null) {
+        window.clearTimeout(transitionTimer.current);
+        transitionTimer.current = null;
+      }
+
       const resetTimer = window.setTimeout(() => setIsTransitioning(false), 0);
       return () => window.clearTimeout(resetTimer);
     }
@@ -83,19 +109,59 @@ export function SageAvatar({
     if (previousExpression.current === expression) return;
 
     previousExpression.current = expression;
-    setIsTransitioning(false);
+    clearScheduledTransition();
 
-    const frame = requestAnimationFrame(() => setIsTransitioning(true));
-    const timer = window.setTimeout(
-      () => setIsTransitioning(false),
-      transitionDuration,
-    );
+    const safeTransitionDuration = Math.max(0, transitionDuration);
+    const safeCooldown = Math.max(0, expressionShiftCooldown);
 
-    return () => {
-      cancelAnimationFrame(frame);
-      window.clearTimeout(timer);
+    const playTransition = () => {
+      queuedTransitionTimer.current = null;
+      transitionAvailableAt.current = Date.now() + safeTransitionDuration + safeCooldown;
+
+      if (transitionFrame.current !== null) {
+        cancelAnimationFrame(transitionFrame.current);
+      }
+
+      if (transitionTimer.current !== null) {
+        window.clearTimeout(transitionTimer.current);
+      }
+
+      setIsTransitioning(false);
+      transitionFrame.current = requestAnimationFrame(() => {
+        transitionFrame.current = null;
+        setIsTransitioning(true);
+        transitionTimer.current = window.setTimeout(() => {
+          transitionTimer.current = null;
+          setIsTransitioning(false);
+        }, safeTransitionDuration);
+      });
     };
-  }, [animateExpressionShift, expression, transitionDuration]);
+
+    const wait = transitionAvailableAt.current - Date.now();
+    if (wait <= 0) {
+      playTransition();
+      return;
+    }
+
+    queuedTransitionTimer.current = window.setTimeout(playTransition, wait);
+  }, [
+    animateExpressionShift,
+    expression,
+    expressionShiftCooldown,
+    transitionDuration,
+  ]);
+
+  useEffect(() => () => {
+    if (transitionFrame.current !== null) {
+      cancelAnimationFrame(transitionFrame.current);
+    }
+    if (transitionTimer.current !== null) {
+      window.clearTimeout(transitionTimer.current);
+    }
+    if (queuedTransitionTimer.current !== null) {
+      window.clearTimeout(queuedTransitionTimer.current);
+    }
+  }, []);
 
   const resolvedAssetPath = (assetPath ?? character.assetPath).replace(/\/$/, "");
   const extension = character.assetExtension ?? "webp";

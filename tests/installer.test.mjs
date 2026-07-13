@@ -52,6 +52,12 @@ test("installer detects shadcn aliases, copies sprites, and is idempotent", asyn
       .map((expression) => access(path.join(fixture, "public", "avatars", "sage", `${expression}.webp`))),
   ]);
 
+  const installedComponent = await readFile(
+    path.join(fixture, "src", "components", "sage-avatar", "sage-avatar.tsx"),
+    "utf8",
+  );
+  assert.match(installedComponent, /expressionShiftCooldown/);
+
   const secondRun = await execFileAsync(process.execPath, [installer, "add", fixture]);
   assert.match(secondRun.stdout, /already up to date/);
   assert.doesNotMatch(secondRun.stdout, /create|replace/);
