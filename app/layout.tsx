@@ -11,7 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: "Mimo — Multi-character Expression Avatar",
     description:
-      "Four animated characters with event-driven expressions and fluid transitions.",
+      "Five animated characters with event-driven expressions and fluid transitions.",
     metadataBase: new URL(origin),
     icons: {
       icon: "/favicon.svg",
@@ -19,16 +19,16 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     openGraph: {
       title: "Mimo — Many faces. Every feeling.",
-      description: "Four animated characters with event-driven expressions and fluid transitions.",
+      description: "Five animated characters with event-driven expressions and fluid transitions.",
       type: "website",
       url: origin,
-      images: [{ url: `${origin}/og-characters.png`, width: 1672, height: 941, alt: "Four Mimo animated characters" }],
+      images: [{ url: `${origin}/og-wizard.png`, width: 1672, height: 941, alt: "Sage the friendly wizard with the Mimo character roster" }],
     },
     twitter: {
       card: "summary_large_image",
       title: "Mimo — Many faces. Every feeling.",
-      description: "Four animated characters with event-driven expressions and fluid transitions.",
-      images: [`${origin}/og-characters.png`],
+      description: "Five animated characters with event-driven expressions and fluid transitions.",
+      images: [`${origin}/og-wizard.png`],
     },
   };
 }

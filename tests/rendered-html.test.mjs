@@ -26,8 +26,10 @@ test("server-renders the Mimo expression studio", async () => {
   assert.match(html, /character-nova/);
   assert.match(html, /character-pip/);
   assert.match(html, /character-moss/);
+  assert.match(html, /character-sage/);
+  assert.match(html, />Sage</);
   assert.match(html, /Send an expression/);
   assert.match(html, /expression-happy/);
-  assert.match(html, /og-characters\.png/);
+  assert.match(html, /og-wizard\.png/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton/i);
 });

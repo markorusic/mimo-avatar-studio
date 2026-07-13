@@ -89,10 +89,12 @@ function Avatar({
         <div className="ear ear-right"><span /></div>
         <div className="head">
           <div className="head-shine" />
+          <div className="facial-hair" aria-hidden="true" />
           <div className="brow brow-left" />
           <div className="brow brow-right" />
           <div className="eye eye-left"><span className="pupil"><i /></span></div>
           <div className="eye eye-right"><span className="pupil"><i /></span></div>
+          <div className="glasses" aria-hidden="true"><i /><i /></div>
           <div className="cheek cheek-left" />
           <div className="cheek cheek-right" />
           <div className="nose" />
@@ -228,7 +230,7 @@ export default function AvatarStudio() {
           </p>
         </div>
         <div className="hero-note" aria-hidden="true">
-          <span>4×8</span>
+          <span>5×8</span>
           <p>characters ×<br />expressions</p>
         </div>
       </section>
@@ -345,8 +347,8 @@ export default function AvatarStudio() {
             <code>
               <span>window</span>.dispatchEvent(<br />
               &nbsp;&nbsp;new CustomEvent(<b>&quot;avatar:state&quot;</b>, {`{`}<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;detail: {`{`} character: <b>&quot;nova&quot;</b>,<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;expression: <b>&quot;happy&quot;</b> {`}`}<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;detail: {`{`} character: <b>&quot;sage&quot;</b>,<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;expression: <b>&quot;thinking&quot;</b> {`}`}<br />
               &nbsp;&nbsp;{`}`})<br />
               );
             </code>
@@ -356,7 +358,7 @@ export default function AvatarStudio() {
 
       <footer>
         <p>BUILT WITH REACT + CSS MOTION</p>
-        <p>4 CHARACTERS · 8 EXPRESSIONS · ZERO EXTERNAL SERVICES</p>
+        <p>5 CHARACTERS · 8 EXPRESSIONS · ZERO EXTERNAL SERVICES</p>
       </footer>
     </main>
   );

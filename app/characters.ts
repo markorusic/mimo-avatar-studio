@@ -51,6 +51,19 @@ export const characters = [
     eye: "#452f68",
     cheek: "#78d69a",
   },
+  {
+    id: "sage",
+    label: "Sage",
+    kind: "Wizard",
+    shape: "wizard",
+    stage: "#51408b",
+    skin: "#f1d8c4",
+    skinShadow: "#c9a28e",
+    hair: "#f4f0dc",
+    accent: "#ffd66b",
+    eye: "#33264f",
+    cheek: "#e8a5a2",
+  },
 ] as const;
 
 export type Character = (typeof characters)[number];

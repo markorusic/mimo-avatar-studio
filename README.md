@@ -1,6 +1,6 @@
 # Mimo animated avatar
 
-Mimo is a self-contained avatar engine with four selectable characters, eight
+Mimo is a self-contained avatar engine with five selectable characters, eight
 expressions, smooth CSS transitions, adjustable motion, and a looping demo.
 It uses React and CSS only—there are no external assets, accounts, API keys, or
 runtime services.
@@ -21,7 +21,7 @@ The avatar listens for a browser `CustomEvent`:
 ```js
 window.dispatchEvent(
   new CustomEvent("avatar:state", {
-    detail: { character: "nova", expression: "happy" },
+    detail: { character: "sage", expression: "thinking" },
   }),
 );
 ```
@@ -35,7 +35,7 @@ window.postMessage(
 );
 ```
 
-Available characters are `mimo`, `nova`, `pip`, and `moss`. Available
+Available characters are `mimo`, `nova`, `pip`, `moss`, and `sage`. Available
 expressions are `idle`, `happy`, `listening`, `thinking`, `surprised`, `sad`,
 `angry`, and `sleepy`.
 

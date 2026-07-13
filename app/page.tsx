@@ -4,7 +4,7 @@ import AvatarStudio from "./AvatarStudio";
 export const metadata: Metadata = {
   title: "Mimo — Multi-character Expression Avatar",
   description:
-    "Four animated characters with event-driven expressions and fluid transitions.",
+    "Five animated characters with event-driven expressions and fluid transitions.",
 };
 
 export default function Home() {

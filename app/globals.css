@@ -378,6 +378,11 @@ a {
   transform: rotate(16deg);
 }
 
+.facial-hair,
+.glasses {
+  display: none;
+}
+
 .ear {
   width: 75px;
   height: 106px;
@@ -612,7 +617,7 @@ a {
 
 .character-list {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   border-top: 1px solid var(--ink);
   border-left: 1px solid var(--ink);
 }
@@ -754,6 +759,35 @@ a {
   top: -2px;
   border-radius: 50%;
   background: var(--portrait-accent);
+}
+
+.character-portrait[data-shape="wizard"]::before {
+  width: 50px;
+  height: 47px;
+  left: calc(50% - 25px);
+  border-radius: 48% 48% 43% 43%;
+}
+
+.character-portrait[data-shape="wizard"] i {
+  width: 52px;
+  height: 38px;
+  left: calc(50% - 26px);
+  top: 2px;
+  border-radius: 0;
+  background: var(--ink);
+  clip-path: polygon(52% 0, 92% 78%, 100% 88%, 0 88%, 12% 73%);
+  transform: rotate(-4deg);
+}
+
+.character-portrait[data-shape="wizard"] i::after {
+  content: "";
+  width: 36px;
+  height: 25px;
+  position: absolute;
+  left: 8px;
+  top: 7px;
+  background: var(--portrait-stage);
+  clip-path: polygon(52% 0, 88% 82%, 100% 100%, 0 100%, 12% 78%);
 }
 
 .character-label {
@@ -1289,6 +1323,233 @@ a {
   background: var(--character-accent);
 }
 
+.avatar-scene[data-character-shape="wizard"] .avatar-rig {
+  transform-origin: 50% 92%;
+}
+
+.avatar-scene[data-character-shape="wizard"] .torso {
+  background: color-mix(in srgb, var(--stage) 76%, var(--ink));
+}
+
+.avatar-scene[data-character-shape="wizard"] .head {
+  width: 286px;
+  height: 284px;
+  left: 22px;
+  top: 31px;
+  border-radius: 47% 47% 44% 44% / 42% 42% 51% 51%;
+}
+
+.avatar-scene[data-character-shape="wizard"] .head::before {
+  width: 110px;
+  height: 142px;
+  left: -19px;
+  top: 10px;
+  border-radius: 54% 46% 58% 42%;
+  background: var(--hair);
+  transform: rotate(-8deg);
+}
+
+.avatar-scene[data-character-shape="wizard"] .head::after {
+  width: 110px;
+  height: 142px;
+  right: -19px;
+  top: 10px;
+  border-radius: 46% 54% 42% 58%;
+  background: var(--hair);
+  transform: rotate(8deg);
+}
+
+.avatar-scene[data-character-shape="wizard"] .head-shine {
+  opacity: 0;
+}
+
+.avatar-scene[data-character-shape="wizard"] .ear {
+  width: 70px;
+  height: 94px;
+  top: 121px;
+  background: var(--skin-shadow);
+}
+
+.avatar-scene[data-character-shape="wizard"] .ear-left {
+  left: -1px;
+  transform: rotate(-8deg);
+}
+
+.avatar-scene[data-character-shape="wizard"] .ear-right {
+  right: -1px;
+  transform: rotate(8deg);
+}
+
+.avatar-scene[data-character-shape="wizard"] .brow {
+  height: 11px;
+  top: 88px;
+  background: var(--hair);
+  box-shadow: 0 3px 0 var(--ink);
+}
+
+.avatar-scene[data-character-shape="wizard"] .brow-left {
+  transform: rotate(8deg);
+}
+
+.avatar-scene[data-character-shape="wizard"] .brow-right {
+  transform: rotate(-8deg);
+}
+
+.avatar-scene[data-character-shape="wizard"] .eye {
+  width: 58px;
+  height: 60px;
+  top: 113px;
+  background: #fffdf5;
+}
+
+.avatar-scene[data-character-shape="wizard"] .eye-left { left: 58px; }
+.avatar-scene[data-character-shape="wizard"] .eye-right { right: 58px; }
+
+.avatar-scene[data-character-shape="wizard"] .pupil {
+  width: 23px;
+  height: 29px;
+  left: 17px;
+  top: 19px;
+}
+
+.avatar-scene[data-character-shape="wizard"] .nose {
+  width: 15px;
+  height: 13px;
+  left: calc(50% - 7px);
+  top: 179px;
+  background: var(--skin-shadow);
+}
+
+.avatar-scene[data-character-shape="wizard"] .cheek {
+  top: 182px;
+  opacity: 0.38;
+}
+
+.avatar-scene[data-character-shape="wizard"] .facial-hair {
+  width: 178px;
+  height: 94px;
+  position: absolute;
+  left: calc(50% - 89px);
+  top: 190px;
+  z-index: 4;
+  display: block;
+  border: 5px solid var(--ink);
+  border-radius: 36% 36% 50% 50% / 22% 22% 78% 78%;
+  background: var(--hair);
+  box-shadow: inset -10px -8px 0 rgba(51,38,79,0.09);
+}
+
+.avatar-scene[data-character-shape="wizard"] .facial-hair::before,
+.avatar-scene[data-character-shape="wizard"] .facial-hair::after {
+  content: "";
+  width: 66px;
+  height: 27px;
+  position: absolute;
+  top: -12px;
+  border: 4px solid var(--ink);
+  background: var(--hair);
+}
+
+.avatar-scene[data-character-shape="wizard"] .facial-hair::before {
+  left: 23px;
+  border-radius: 70% 18% 72% 26%;
+  transform: rotate(8deg);
+}
+
+.avatar-scene[data-character-shape="wizard"] .facial-hair::after {
+  right: 23px;
+  border-radius: 18% 70% 26% 72%;
+  transform: rotate(-8deg);
+}
+
+.avatar-scene[data-character-shape="wizard"] .glasses {
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+  display: block;
+  pointer-events: none;
+}
+
+.avatar-scene[data-character-shape="wizard"] .glasses::before {
+  content: "";
+  width: 39px;
+  height: 5px;
+  position: absolute;
+  left: calc(50% - 19px);
+  top: 141px;
+  border-radius: 99px;
+  background: var(--character-accent);
+  box-shadow: 0 0 0 2px var(--ink);
+}
+
+.avatar-scene[data-character-shape="wizard"] .glasses i {
+  width: 75px;
+  height: 75px;
+  position: absolute;
+  top: 105px;
+  border: 5px solid var(--ink);
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 2px var(--character-accent);
+  background: rgba(255,255,255,0.06);
+}
+
+.avatar-scene[data-character-shape="wizard"] .glasses i:first-child { left: 42px; }
+.avatar-scene[data-character-shape="wizard"] .glasses i:last-child { right: 42px; }
+
+.avatar-scene[data-character-shape="wizard"] .mouth {
+  top: 207px;
+  z-index: 6;
+}
+
+.avatar-scene[data-character-shape="wizard"] .detail-one {
+  width: 190px;
+  height: 154px;
+  left: 70px;
+  top: -98px;
+  z-index: 1;
+  opacity: 1;
+  background: var(--ink);
+  clip-path: polygon(53% 0, 73% 51%, 100% 100%, 0 100%, 27% 52%);
+  transform: rotate(-4deg);
+}
+
+.avatar-scene[data-character-shape="wizard"] .detail-one::after {
+  content: "";
+  width: 170px;
+  height: 136px;
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  background: color-mix(in srgb, var(--stage) 70%, var(--ink));
+  clip-path: polygon(53% 0, 73% 51%, 100% 100%, 0 100%, 27% 52%);
+}
+
+.avatar-scene[data-character-shape="wizard"] .detail-two {
+  width: 246px;
+  height: 39px;
+  left: 42px;
+  top: 22px;
+  z-index: 2;
+  opacity: 1;
+  border: 5px solid var(--ink);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--stage) 70%, var(--ink));
+  transform: rotate(-2deg);
+}
+
+.avatar-scene[data-character-shape="wizard"] .detail-three {
+  width: 21px;
+  height: 21px;
+  left: 158px;
+  top: -38px;
+  z-index: 3;
+  opacity: 1;
+  background: var(--character-accent);
+  clip-path: polygon(50% 0, 62% 37%, 100% 50%, 62% 63%, 50% 100%, 38% 63%, 0 50%, 38% 37%);
+  filter: drop-shadow(0 0 4px rgba(255,214,107,0.75));
+  animation: wizardSparkle calc(2.4s / var(--intensity)) ease-in-out infinite;
+}
+
 footer {
   width: min(1440px, calc(100% - 48px));
   min-height: 88px;
@@ -1422,6 +1683,7 @@ footer {
 @keyframes signalWave { 0% { opacity: 0; transform: scale(0.65); } 45% { opacity: 1; } 100% { opacity: 0; transform: scale(1.35); } }
 @keyframes thoughtFloat { from { transform: translateY(2px) rotate(-5deg); } to { transform: translateY(-8px) rotate(5deg); } }
 @keyframes sleepNote { 0% { opacity: 0; transform: translate(0, 28px) scale(0.7) rotate(-8deg); } 25% { opacity: 1; } 100% { opacity: 0; transform: translate(65px, -60px) scale(1.25) rotate(8deg); } }
+@keyframes wizardSparkle { 0%, 100% { transform: scale(0.86) rotate(0deg); filter: drop-shadow(0 0 3px rgba(255,214,107,0.45)); } 50% { transform: scale(1.18) rotate(45deg); filter: drop-shadow(0 0 8px rgba(255,214,107,0.95)); } }
 
 @media (max-width: 1050px) {
   .studio { grid-template-columns: 1fr; }
@@ -1447,6 +1709,7 @@ footer {
   .now-playing { padding: 0 15px; }
   .now-playing code { display: none; }
   .control-panel { padding: 22px 16px; }
+  .character-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .control-heading { align-items: flex-end; }
   .control-heading h2 { font-size: 22px; }
   .autoplay { padding: 0 10px; }
