@@ -100,7 +100,61 @@ function parseJsonWithComments(source) {
   try {
     return JSON.parse(source);
   } catch {
-    const withoutComments = source.replace(/^\s*\/\/.*$/gm, "").replace(/,\s*([}\]])/g, "$1");
+    let withoutComments = "";
+    let inString = false;
+    let escaped = false;
+
+    for (let index = 0; index < source.length; index += 1) {
+      const character = source[index];
+      const nextCharacter = source[index + 1];
+
+      if (inString) {
+        withoutComments += character;
+        if (escaped) {
+          escaped = false;
+        } else if (character === "\\") {
+          escaped = true;
+        } else if (character === '"') {
+          inString = false;
+        }
+        continue;
+      }
+
+      if (character === '"') {
+        inString = true;
+        withoutComments += character;
+        continue;
+      }
+
+      if (character === "/" && nextCharacter === "/") {
+        withoutComments += "  ";
+        index += 2;
+        while (index < source.length && source[index] !== "\n" && source[index] !== "\r") {
+          withoutComments += " ";
+          index += 1;
+        }
+        index -= 1;
+        continue;
+      }
+
+      if (character === "/" && nextCharacter === "*") {
+        withoutComments += "  ";
+        index += 2;
+        while (index < source.length && !(source[index] === "*" && source[index + 1] === "/")) {
+          withoutComments += source[index] === "\n" || source[index] === "\r" ? source[index] : " ";
+          index += 1;
+        }
+        if (index < source.length) {
+          withoutComments += "  ";
+          index += 1;
+        }
+        continue;
+      }
+
+      withoutComments += character;
+    }
+
+    withoutComments = withoutComments.replace(/,\s*([}\]])/g, "$1");
     return JSON.parse(withoutComments);
   }
 }

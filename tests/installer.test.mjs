@@ -30,11 +30,25 @@ async function createShadcnFixture() {
     ),
     writeFile(
       path.join(fixture, "components.json"),
-      JSON.stringify({ aliases: { components: "@/components" } }),
+      `{
+        // shadcn aliases
+        "aliases": {
+          /* Install into the existing component root. */
+          "components": "@/components",
+        },
+      }`,
     ),
     writeFile(
       path.join(fixture, "tsconfig.json"),
-      JSON.stringify({ compilerOptions: { paths: { "@/*": ["./src/*"] } } }),
+      `{
+        "compilerOptions": {
+          /* Resolve application imports. */
+          "paths": {
+            "@/*": ["./src/*"], // keep this alias
+            "docs/*": ["https://example.com/docs/*"],
+          },
+        },
+      }`,
     ),
   ]);
   return fixture;
