@@ -13,6 +13,13 @@ export const guideExpressions = [
   "sad",
   "angry",
   "sleepy",
+  "encouraging",
+  "explaining",
+  "curious",
+  "celebrating",
+  "focused",
+  "reassuring",
+  "impressed",
 ] as const;
 
 export type GuideExpression = (typeof guideExpressions)[number];

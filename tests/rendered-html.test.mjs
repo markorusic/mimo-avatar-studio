@@ -15,6 +15,8 @@ test("prerenders the Studio with public installation docs", async () => {
   assert.match(html, /\/mimo-guides\/sage\/idle\.webp/);
   assert.match(html, /Send an expression/);
   assert.match(html, /expression-happy/);
+  assert.match(html, /expression-encouraging/);
+  assert.match(html, /expression-impressed/);
   assert.match(html, /character-socrates/);
   assert.match(html, /character-tesla/);
   assert.match(html, /character-leonardo/);
@@ -28,20 +30,23 @@ test("prerenders the Studio with public installation docs", async () => {
   assert.match(html, /STUDIO EVENT ADAPTER/);
   assert.match(html, /mimo-guide:expression/);
   assert.match(html, /github:markorusic\/mimo-avatar-studio/);
-  assert.match(html, /href="\/canvas"/);
+  assert.match(html, /href="\/learn"/);
   assert.match(html, /og-wizard\.png/);
   assert.doesNotMatch(html, /ONE WIZARD|EVERY FEELING/);
   assert.doesNotMatch(html, /character-nova|character-pip|character-moss/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton/i);
 });
 
-test("prerenders the interactive canvas example", async () => {
-  const html = await readBuiltPage("canvas");
-  assert.match(html, /<title>Mimo Canvas · Guide Studio<\/title>/i);
-  assert.match(html, /Interactive integration example/);
-  assert.match(html, /aria-label="Drawing canvas"/);
-  assert.match(html, /Disable event pop animation/);
-  assert.match(html, /Canvas guide character/);
+test("prerenders the interactive learning example", async () => {
+  const html = await readBuiltPage("learn");
+  assert.match(html, /<title>Mimo Learning Lab · Interactive Avatar Demo<\/title>/i);
+  assert.match(html, /Live integration/);
+  assert.match(html, /Tesla’s electricity lab/);
+  assert.match(html, /Choose your guide/);
+  assert.match(html, /Live guide response/);
+  assert.match(html, /Check answer/);
+  assert.match(html, /Avatar reaction sequence/);
+  assert.match(html, /Explain/);
   assert.match(html, /Nikola Tesla/);
   assert.match(html, /href="\/"/);
 });
@@ -57,6 +62,13 @@ test("ships every registered character expression sprite", async () => {
     "sad",
     "angry",
     "sleepy",
+    "encouraging",
+    "explaining",
+    "curious",
+    "celebrating",
+    "focused",
+    "reassuring",
+    "impressed",
   ];
 
   await Promise.all(
@@ -108,6 +120,13 @@ test("keeps the distributable and demo sprite packs identical", async () => {
     "sad",
     "angry",
     "sleepy",
+    "encouraging",
+    "explaining",
+    "curious",
+    "celebrating",
+    "focused",
+    "reassuring",
+    "impressed",
   ];
 
   for (const character of characters) {

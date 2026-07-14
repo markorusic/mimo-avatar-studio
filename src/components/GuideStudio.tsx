@@ -23,6 +23,37 @@ const expressions = [
   { id: "sad", label: "Sad", symbol: "⌢", event: "CONNECTION_LOST", color: "#77a7ff" },
   { id: "angry", label: "Angry", symbol: "×", event: "ERROR_DETECTED", color: "#ff6363" },
   { id: "sleepy", label: "Sleepy", symbol: "z", event: "INACTIVE", color: "#a9b4cc" },
+  {
+    id: "encouraging",
+    label: "Encouraging",
+    symbol: "↑",
+    event: "RETRY_READY",
+    color: "#8ee681",
+  },
+  {
+    id: "explaining",
+    label: "Explaining",
+    symbol: "≡",
+    event: "INSIGHT_SHARED",
+    color: "#60d5c8",
+  },
+  { id: "curious", label: "Curious", symbol: "?", event: "PROMPT_SHOWN", color: "#e4a6ff" },
+  {
+    id: "celebrating",
+    label: "Celebrating",
+    symbol: "★",
+    event: "MILESTONE_REACHED",
+    color: "#ffcb45",
+  },
+  { id: "focused", label: "Focused", symbol: "◎", event: "CHALLENGE_MODE", color: "#77b8ff" },
+  {
+    id: "reassuring",
+    label: "Reassuring",
+    symbol: "~",
+    event: "SUPPORT_NEEDED",
+    color: "#f2a9b7",
+  },
+  { id: "impressed", label: "Impressed", symbol: "+", event: "EXCELLENCE", color: "#ff9d6c" },
 ] as const;
 
 declare global {
@@ -272,7 +303,7 @@ import guideCharacter from "@/components/mimo-guide/characters/${activeCharacter
         </Link>
         <nav className="site-nav" aria-label="Main navigation">
           <a href="#studio">Studio</a>
-          <Link to="/canvas">Canvas demo</Link>
+          <Link to="/learn">Learning demo</Link>
           <a href="#install">Install</a>
           <a
             href="https://github.com/markorusic/mimo-avatar-studio"
@@ -420,7 +451,7 @@ import guideCharacter from "@/components/mimo-guide/characters/${activeCharacter
           <p className="section-kicker">COPY-OWNED · SHADCN-STYLE</p>
           <h2>Bring one guide into your React app.</h2>
           <p>
-            Install the reusable component with only the selected character and its eight local
+            Install the reusable component with only the selected character and its 15 local
             sprites. No account, hosted runtime, or proprietary animation tool required.
           </p>
         </div>
@@ -482,7 +513,7 @@ import guideCharacter from "@/components/mimo-guide/characters/${activeCharacter
 
       <footer>
         <p>MIMO / ILLUSTRATED GUIDE KIT</p>
-        <p>4 characters · 8 expressions each · MIT licensed</p>
+        <p>4 characters · 15 expressions each · MIT licensed</p>
       </footer>
     </main>
   );

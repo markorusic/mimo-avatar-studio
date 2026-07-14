@@ -18,6 +18,13 @@ const expressions = [
   "sad",
   "angry",
   "sleepy",
+  "encouraging",
+  "explaining",
+  "curious",
+  "celebrating",
+  "focused",
+  "reassuring",
+  "impressed",
 ];
 
 async function createShadcnFixture() {

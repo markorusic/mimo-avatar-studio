@@ -386,18 +386,18 @@ a {
 
 .expression-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   border-top: 1px solid var(--ink);
   border-left: 1px solid var(--ink);
 }
 
 .expression-button {
   --button-accent: var(--lime);
-  min-height: 92px;
+  min-height: 82px;
   position: relative;
   padding: 14px;
   display: grid;
-  grid-template-columns: 44px 1fr auto;
+  grid-template-columns: 34px minmax(0, 1fr);
   grid-template-rows: auto 1fr;
   align-items: end;
   gap: 2px 11px;
@@ -441,20 +441,21 @@ a {
 }
 
 .expression-symbol {
-  width: 42px;
-  height: 42px;
+  width: 32px;
+  height: 32px;
   display: grid;
   place-items: center;
   border-radius: 50%;
   background: var(--ink);
   color: var(--button-accent);
-  font-size: 21px;
+  font-size: 17px;
   font-weight: 900;
 }
 
 .expression-name {
-  padding-bottom: 5px;
-  font-size: 17px;
+  padding-bottom: 3px;
+  overflow: hidden;
+  font-size: clamp(11px, 1.05vw, 14px);
   font-weight: 850;
   letter-spacing: -0.03em;
 }
@@ -917,18 +918,22 @@ footer p {
     padding: 0 10px;
   }
   .expression-button {
-    min-height: 86px;
-    padding: 11px;
-    grid-template-columns: 36px 1fr auto;
-    gap: 2px 7px;
+    min-height: 62px;
+    padding: 9px 7px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-direction: column;
+    gap: 7px;
   }
   .expression-symbol {
-    width: 35px;
-    height: 35px;
-    font-size: 18px;
+    display: none;
   }
   .expression-name {
-    font-size: 15px;
+    max-width: 100%;
+    padding: 0;
+    font-size: clamp(10px, 3vw, 13px);
+    line-height: 1.1;
   }
   .event-recipe code {
     font-size: 9.5px;

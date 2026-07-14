@@ -200,21 +200,26 @@
   opacity: 1;
 }
 
-.mimo-guide-scene[data-expression="happy"] .mimo-guide-sprite-rig {
+.mimo-guide-scene[data-expression="happy"] .mimo-guide-sprite-rig,
+.mimo-guide-scene[data-expression="celebrating"] .mimo-guide-sprite-rig {
   animation: mimoGuideHappyBounce calc(0.72s / var(--mimo-guide-intensity)) ease-in-out infinite
     alternate;
 }
 
-.mimo-guide-scene[data-expression="listening"] .mimo-guide-sprite-rig {
+.mimo-guide-scene[data-expression="listening"] .mimo-guide-sprite-rig,
+.mimo-guide-scene[data-expression="curious"] .mimo-guide-sprite-rig,
+.mimo-guide-scene[data-expression="explaining"] .mimo-guide-sprite-rig {
   animation: mimoGuideListenLean calc(1.3s / var(--mimo-guide-intensity)) ease-in-out infinite
     alternate;
 }
 
-.mimo-guide-scene[data-expression="thinking"] .mimo-guide-sprite-rig {
+.mimo-guide-scene[data-expression="thinking"] .mimo-guide-sprite-rig,
+.mimo-guide-scene[data-expression="focused"] .mimo-guide-sprite-rig {
   animation: mimoGuideThink calc(2.2s / var(--mimo-guide-intensity)) ease-in-out infinite alternate;
 }
 
-.mimo-guide-scene[data-expression="surprised"] .mimo-guide-sprite-rig {
+.mimo-guide-scene[data-expression="surprised"] .mimo-guide-sprite-rig,
+.mimo-guide-scene[data-expression="impressed"] .mimo-guide-sprite-rig {
   animation: mimoGuideSurprisePop calc(1.5s / var(--mimo-guide-intensity)) ease-in-out infinite;
 }
 
@@ -228,6 +233,16 @@
 
 .mimo-guide-scene[data-expression="sleepy"] .mimo-guide-sprite-rig {
   animation: mimoGuideSleepySway calc(3.8s / var(--mimo-guide-intensity)) ease-in-out infinite
+    alternate;
+}
+
+.mimo-guide-scene[data-expression="encouraging"] .mimo-guide-sprite-rig {
+  animation: mimoGuideHappyBounce calc(1.25s / var(--mimo-guide-intensity)) ease-in-out infinite
+    alternate;
+}
+
+.mimo-guide-scene[data-expression="reassuring"] .mimo-guide-sprite-rig {
+  animation: mimoGuideListenLean calc(2.2s / var(--mimo-guide-intensity)) ease-in-out infinite
     alternate;
 }
 

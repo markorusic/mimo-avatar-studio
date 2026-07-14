@@ -33,14 +33,16 @@ Character authoring does not require changes to `MimoGuide`:
 1. Choose a lowercase kebab-case ID.
 2. Add transparent, consistently framed `idle.webp`, `happy.webp`,
    `listening.webp`, `thinking.webp`, `surprised.webp`, `sad.webp`,
-   `angry.webp`, and `sleepy.webp` files to `assets/<id>/`.
+   `angry.webp`, `sleepy.webp`, `encouraging.webp`, `explaining.webp`,
+   `curious.webp`, `celebrating.webp`, `focused.webp`, `reassuring.webp`, and
+   `impressed.webp` files to `assets/<id>/`.
 3. Add `src/characters/<id>.ts` with matching `id`, `assetPath`, label, role,
    stage color, and accent color.
 4. Export the module from `src/characters/index.ts` and add it to
    `guideCharacters` for multi-character hosts such as the Studio.
 
 The installer discovers selectable IDs from the folders in `assets/`, requires
-the matching character module, and copies only the selected module and its eight
+the matching character module, and copies only the selected module and its 15
 sprites. In the Studio repository, mirror the sprite folder to
 `public/mimo-guides/<id>/` and keep both copies byte-for-byte identical.
 

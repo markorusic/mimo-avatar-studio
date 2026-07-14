@@ -1,16 +1,16 @@
 # Mimo Guide Studio
 
 Mimo Guide is a registry-driven illustrated React character engine. It ships Sage,
-Socrates, Nikola Tesla, and Leonardo da Vinci with eight animated expressions
-each. This repository contains the expression Studio, the interactive canvas
+Socrates, Nikola Tesla, and Leonardo da Vinci with 15 animated expressions
+each. This repository contains the expression Studio, the interactive learning
 integration example, and the copy-owned component kit.
 
 The Studio runs on TanStack Start with file-based TanStack Router routes, Vite,
-Tailwind CSS, and Nitro. Nitro prerenders the Studio and canvas while keeping the
+Tailwind CSS, and Nitro. Nitro prerenders the Studio and learning lab while keeping the
 project ready for server routes and server functions later.
 
 - Studio: `/`
-- Canvas example: `/canvas`
+- Learning example: `/learn`
 - Portable kit: `packages/mimo-guide`
 
 ## Run the demo
@@ -55,7 +55,7 @@ npx --yes github:markorusic/mimo-avatar-studio add . --character tesla
 It installs:
 
 - The reusable `MimoGuide` core in the project's component directory.
-- `characters/tesla.ts` and only Tesla's eight WebP sprites in `public/mimo-guides/tesla`.
+- `characters/tesla.ts` and only Tesla's 15 WebP sprites in `public/mimo-guides/tesla`.
 - No npm dependencies and no Tailwind configuration.
 
 `--character` is required. Available values are `sage`, `socrates`, `tesla`,
@@ -98,7 +98,7 @@ npm exec --yes --offline --package=/path/to/mimo-guide-0.1.0.tgz -- mimo-guide a
 
 This is the shadcn-style distribution path for the illustrated guide roster.
 The official shadcn registry format stores file contents as text, so it cannot
-faithfully carry the eight binary WebP sprites in a single registry item. The
+faithfully carry the 15 binary WebP sprites in a single registry item. The
 small installer preserves the same copy-and-own workflow while keeping the
 images as efficient local assets rather than a CDN dependency.
 
@@ -145,9 +145,15 @@ export function ProductGuide() {
 ```
 
 Available expressions are `idle`, `happy`, `listening`, `thinking`,
-`surprised`, `sad`, `angry`, and `sleepy`. Expression changes automatically
+`surprised`, `sad`, `angry`, `sleepy`, `encouraging`, `explaining`, `curious`,
+`celebrating`, `focused`, `reassuring`, and `impressed`. Expression changes automatically
 crossfade and replay the transition animation. Rapid expression changes are
 coalesced so the pop animation cannot continuously restart.
+
+The learning example treats these as product states: `curious` introduces a
+prompt, `focused` marks the final challenge, `encouraging` and `reassuring`
+support a retry, `explaining` delivers the lesson insight, `impressed` rewards
+strong progress, and `celebrating` closes the lesson.
 
 Useful props include:
 
@@ -178,7 +184,7 @@ entry.
 
 ### 1. Create the expression artwork
 
-Create eight transparent WebP files with these exact names:
+Create 15 transparent WebP files with these exact names:
 
 ```text
 idle.webp
@@ -189,10 +195,17 @@ surprised.webp
 sad.webp
 angry.webp
 sleepy.webp
+encouraging.webp
+explaining.webp
+curious.webp
+celebrating.webp
+focused.webp
+reassuring.webp
+impressed.webp
 ```
 
 Keep the canvas dimensions, character scale, center point, and framing identical
-across all eight images. Expression transitions crossfade sprites in the same
+across all 15 images. Expression transitions crossfade sprites in the same
 position, so inconsistent framing will look like the character jumps.
 
 Choose a lowercase kebab-case ID for the character, such as `einstein`, and add
@@ -210,7 +223,7 @@ public/mimo-guides/einstein/*.webp
 
 The two folders must remain byte-for-byte identical. The package folder is what
 the installer ships to consumer projects; the public folder is what this Studio
-and canvas demo render.
+and learning demo render.
 
 ### 2. Add the character configuration
 
@@ -233,7 +246,7 @@ export default einsteinCharacter;
 ```
 
 `stage` controls the Studio presentation color and `accent` controls highlights
-and canvas theming. The `id`, module filename, asset folder, and final segment of
+and learning-lab theming. The `id`, module filename, asset folder, and final segment of
 `assetPath` must match.
 
 ### 3. Register the character
@@ -253,7 +266,7 @@ export const guideCharacters = [
 ```
 
 That registry entry automatically adds the character to the Studio roster, the
-canvas selector, event validation, and the Studio's generated install example.
+learning selector, event validation, and the Studio's generated install example.
 The installer discovers selectable IDs from `packages/mimo-guide/assets`, so it
 will also accept:
 
@@ -261,7 +274,7 @@ will also accept:
 npx --yes github:markorusic/mimo-avatar-studio add . --character einstein
 ```
 
-The installer copies only `einstein.ts`, Einstein's eight sprites, and the shared
+The installer copies only `einstein.ts`, Einstein's 15 sprites, and the shared
 component core. It does not copy the other character packs.
 
 ### 4. Update repository bookkeeping

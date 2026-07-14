@@ -14,7 +14,7 @@ export default defineConfig({
     nitro({
       routeRules: {
         "/": { prerender: true },
-        "/canvas": { prerender: true },
+        "/learn": { prerender: true },
       },
     }),
     viteReact(),

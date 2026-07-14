@@ -14,6 +14,13 @@ const EXPRESSIONS = [
   "sad",
   "angry",
   "sleepy",
+  "encouraging",
+  "explaining",
+  "curious",
+  "celebrating",
+  "focused",
+  "reassuring",
+  "impressed",
 ];
 const CORE_FILES = ["mimo-guide.tsx", "mimo-guide.module.css", "guide-character.ts", "index.ts"];
 

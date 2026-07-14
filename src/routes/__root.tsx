@@ -4,7 +4,7 @@ import "../styles/globals.css";
 
 const title = "Mimo Guide Studio";
 const description =
-  "A portable React guide roster with four characters and eight event-driven expressions.";
+  "A portable React guide roster with four characters and 15 event-driven expressions.";
 
 export const Route = createRootRoute({
   head: () => ({
@@ -25,7 +25,7 @@ export const Route = createRootRoute({
       { name: "twitter:title", content: title },
       {
         name: "twitter:description",
-        content: "A portable React guide roster with four characters and eight expressions each.",
+        content: "A portable React guide roster with four characters and 15 expressions each.",
       },
       { name: "twitter:image", content: "/og-wizard.png" },
     ],
