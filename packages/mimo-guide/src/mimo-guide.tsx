@@ -225,5 +225,3 @@ export function MimoGuide({
     </div>
   );
 }
-
-export default MimoGuide;

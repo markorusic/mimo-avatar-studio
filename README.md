@@ -55,21 +55,34 @@ npx --yes github:markorusic/mimo-avatar-studio add . --character tesla
 It installs:
 
 - The reusable `MimoGuide` core in the project's component directory.
-- `characters/tesla.ts` and only Tesla's 15 WebP sprites in `public/mimo-guides/tesla`.
+- A named `characters/tesla-guide.tsx` module exporting `TeslaGuide` and
+  `teslaCharacter`.
+- Only Tesla's 15 WebP sprites in `public/mimo-guides/tesla`.
 - No npm dependencies and no Tailwind configuration.
 
-`--character` is required. Available values are `sage`, `socrates`, `tesla`,
-and `leonardo`. Run the command again with another value when a project needs a
-second character; the shared core remains unchanged.
+`--character` is required and repeatable. Available values are `sage`,
+`socrates`, `tesla`, and `leonardo`. Install several atomically or run the
+command later with another value:
+
+```bash
+npx --yes github:markorusic/mimo-avatar-studio add . --character sage --character tesla
+```
+
+The first add bootstraps the shared core and records its API version in
+`.mimo-guide/manifest.json`. Later character additions touch only the selected
+character modules and assets, so consumer edits to the core or an existing
+character do not block unrelated additions.
 
 If the target has a shadcn `components.json`, the installer resolves its
 `aliases.components` setting through `tsconfig.json` or `jsconfig.json`.
 Otherwise it uses `src/components/mimo-guide` for `src`-based apps and
 `components/mimo-guide` for root-based apps.
 
-The installer is safe to rerun. Identical files are left alone, and edited
-files stop the entire operation before anything is written. Use `--force` only
-when you intentionally want to replace Mimo Guide files.
+The installer is safe to rerun. Identical files are left alone, and edits to a
+selected character's files stop the entire operation before anything is
+written. Use `--force` only when you intentionally want to replace that
+character. Shared-runtime upgrades are deliberately separate from character
+adds.
 
 ```bash
 npx --yes github:markorusic/mimo-avatar-studio add . --character sage --dry-run
@@ -111,7 +124,7 @@ src/mimo-guide.tsx
 src/mimo-guide.module.css
 src/guide-character.ts
 src/index.ts
-src/characters/<selected>.ts
+src/characters/<selected>-guide.tsx
 assets/<selected>/*.webp -> public/mimo-guides/<selected>/*.webp
 ```
 
@@ -124,16 +137,17 @@ on demo code elsewhere in this repository.
 "use client";
 
 import { useState } from "react";
-import { MimoGuide, type GuideExpression } from "@/components/mimo-guide";
-import teslaCharacter from "@/components/mimo-guide/characters/tesla";
+import {
+  TeslaGuide,
+  type TeslaGuideProps,
+} from "@/components/mimo-guide/characters/tesla-guide";
 
 export function ProductGuide() {
-  const [expression, setExpression] = useState<GuideExpression>("idle");
+  const [expression, setExpression] = useState<TeslaGuideProps["expression"]>("idle");
 
   return (
     <>
-      <MimoGuide
-        character={teslaCharacter}
+      <TeslaGuide
         expression={expression}
         size={420}
         intensity={1}
@@ -227,12 +241,13 @@ and learning demo render.
 
 ### 2. Add the character configuration
 
-Create `packages/mimo-guide/src/characters/einstein.ts`:
+Create `packages/mimo-guide/src/characters/einstein-guide.tsx`:
 
-```ts
+```tsx
 import type { GuideCharacter } from "../guide-character";
+import { MimoGuide, type MimoGuideProps } from "../mimo-guide";
 
-const einsteinCharacter = {
+export const einsteinCharacter = {
   id: "einstein",
   label: "Albert Einstein",
   role: "Playful physicist",
@@ -242,7 +257,11 @@ const einsteinCharacter = {
   accent: "#ffd166",
 } as const satisfies GuideCharacter;
 
-export default einsteinCharacter;
+export type EinsteinGuideProps = Omit<MimoGuideProps, "character">;
+
+export function EinsteinGuide(props: EinsteinGuideProps) {
+  return <MimoGuide {...props} character={einsteinCharacter} />;
+}
 ```
 
 `stage` controls the Studio presentation color and `accent` controls highlights
@@ -251,13 +270,13 @@ and learning-lab theming. The `id`, module filename, asset folder, and final seg
 
 ### 3. Register the character
 
-Import the module in `packages/mimo-guide/src/characters/index.ts`, export it,
-and add it to `guideCharacters`:
+Import the named descriptor in `packages/mimo-guide/src/characters/index.ts`,
+re-export the named wrapper, and add the descriptor to `guideCharacters`:
 
 ```ts
-import einsteinCharacter from "./einstein";
+import { einsteinCharacter } from "./einstein-guide";
 
-export { einsteinCharacter };
+export { EinsteinGuide, type EinsteinGuideProps, einsteinCharacter } from "./einstein-guide";
 
 export const guideCharacters = [
   // existing characters...
@@ -274,8 +293,9 @@ will also accept:
 npx --yes github:markorusic/mimo-avatar-studio add . --character einstein
 ```
 
-The installer copies only `einstein.ts`, Einstein's 15 sprites, and the shared
-component core. It does not copy the other character packs.
+The installer copies only `einstein-guide.tsx`, Einstein's 15 sprites, and—on
+the first installation—the shared component core. It does not copy the other
+character packs or mutate a shared character registry in the consumer project.
 
 ### 4. Update repository bookkeeping
 

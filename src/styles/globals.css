@@ -804,6 +804,18 @@ a {
   font-size: 11px !important;
 }
 
+.install-command-label {
+  margin: 20px 0 -12px;
+  color: rgba(23, 25, 31, 0.72) !important;
+  font:
+    800 9px / 1 ui-monospace,
+    SFMono-Regular,
+    Consolas,
+    monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
 .usage-example {
   margin-top: 18px;
   padding: 22px 22px 22px 28px;
@@ -839,6 +851,18 @@ a {
 
 .usage-example .studio-code-block {
   margin: 0;
+}
+
+.usage-example > div > p {
+  max-width: 250px;
+  margin: 4px 0 0;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.usage-example-secondary {
+  background: var(--ink);
 }
 
 footer {

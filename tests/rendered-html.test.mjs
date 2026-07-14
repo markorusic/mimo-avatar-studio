@@ -20,8 +20,16 @@ test("prerenders the Studio with public installation docs", async () => {
   assert.match(html, /character-socrates/);
   assert.match(html, /character-tesla/);
   assert.match(html, /character-leonardo/);
-  assert.match(html, /Bring one guide into your React app/);
+  assert.match(html, /Bring your guides into your React app/);
+  assert.match(html, /SageGuide/);
+  assert.match(html, /characters\/sage-guide/);
   assert.match(html, /--character/);
+  assert.match(html, /Or add multiple guides atomically/);
+  assert.match(html, /syntax-value">tesla/);
+  assert.match(html, /\.mimo-guide\/manifest.json/);
+  assert.match(html, /DYNAMIC ROSTER/);
+  assert.match(html, /teslaCharacter/);
+  assert.match(html, /installing a character never mutates it/);
   assert.match(html, /aria-label="Copy shell code"/);
   assert.match(html, /aria-label="Copy tsx code"/);
   assert.match(html, /syntax-command/);
@@ -89,10 +97,30 @@ test("keeps the public component entrypoint independent of the character catalog
   assert.match(publicEntrypoint, /MimoGuide/);
   assert.match(publicEntrypoint, /GuideExpression/);
   assert.match(publicEntrypoint, /GuideCharacter/);
+  assert.doesNotMatch(publicEntrypoint, /export default/);
   assert.doesNotMatch(
     publicEntrypoint,
     /sageCharacter|socratesCharacter|teslaCharacter|leonardoCharacter|guideCharacters/,
   );
+});
+
+test("ships every character as a named guide module", async () => {
+  const characters = [
+    ["sage", "SageGuide"],
+    ["socrates", "SocratesGuide"],
+    ["tesla", "TeslaGuide"],
+    ["leonardo", "LeonardoGuide"],
+  ];
+
+  for (const [character, component] of characters) {
+    const module = await readFile(
+      new URL(`../packages/mimo-guide/src/characters/${character}-guide.tsx`, import.meta.url),
+      "utf8",
+    );
+    assert.match(module, new RegExp(`export const ${character}Character`));
+    assert.match(module, new RegExp(`export function ${component}`));
+    assert.doesNotMatch(module, /export default/);
+  }
 });
 
 test("keeps Mimo Guide styles fully namespaced", async () => {

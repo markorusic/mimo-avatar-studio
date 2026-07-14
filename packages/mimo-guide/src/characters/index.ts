@@ -1,8 +1,12 @@
-import leonardoCharacter from "./leonardo";
-import sageCharacter from "./sage";
-import socratesCharacter from "./socrates";
-import teslaCharacter from "./tesla";
+import { leonardoCharacter } from "./leonardo-guide";
+import { sageCharacter } from "./sage-guide";
+import { socratesCharacter } from "./socrates-guide";
+import { teslaCharacter } from "./tesla-guide";
 
+export { LeonardoGuide, type LeonardoGuideProps } from "./leonardo-guide";
+export { SageGuide, type SageGuideProps } from "./sage-guide";
+export { SocratesGuide, type SocratesGuideProps } from "./socrates-guide";
+export { TeslaGuide, type TeslaGuideProps } from "./tesla-guide";
 export { leonardoCharacter, sageCharacter, socratesCharacter, teslaCharacter };
 
 export const guideCharacters = [

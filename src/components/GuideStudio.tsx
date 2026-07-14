@@ -78,6 +78,10 @@ type StudioCodeBlockProps = {
   language: "shell" | "tsx";
 };
 
+function guideComponentName(characterId: GuideCharacterId) {
+  return `${characterId[0].toUpperCase()}${characterId.slice(1)}Guide`;
+}
+
 const tsxKeywords = new Set(["as", "const", "export", "from", "import", "type"]);
 const tsxProperties = new Set([
   "character",
@@ -199,15 +203,23 @@ export default function GuideStudio() {
     [expression],
   );
   const activeCharacter = getGuideCharacter(characterId);
+  const activeGuideComponent = guideComponentName(activeCharacter.id);
   const installCommand = `npx --yes github:markorusic/mimo-avatar-studio add . --character ${activeCharacter.id}`;
-  const usageCode = `import { MimoGuide } from "@/components/mimo-guide";
-import guideCharacter from "@/components/mimo-guide/characters/${activeCharacter.id}";
+  const multiInstallCommand =
+    "npx --yes github:markorusic/mimo-avatar-studio add . --character sage --character tesla";
+  const usageCode = `import { ${activeGuideComponent} } from "@/components/mimo-guide/characters/${activeCharacter.id}-guide";
 
-<MimoGuide
-  character={guideCharacter}
+<${activeGuideComponent}
   expression="thinking"
   expressionShiftCooldown={240}
 />`;
+  const dynamicUsageCode = `import { MimoGuide } from "@/components/mimo-guide";
+import { sageCharacter } from "@/components/mimo-guide/characters/sage-guide";
+import { teslaCharacter } from "@/components/mimo-guide/characters/tesla-guide";
+
+const guides = { sage: sageCharacter, tesla: teslaCharacter } as const;
+
+<MimoGuide character={guides[selectedGuide]} expression="thinking" />`;
 
   const applyGuideState = useCallback((next: GuideState) => {
     if (!next.expression && !next.character) return;
@@ -449,10 +461,10 @@ import guideCharacter from "@/components/mimo-guide/characters/${activeCharacter
       <section className="install-section" id="install">
         <div className="install-heading">
           <p className="section-kicker">COPY-OWNED · SHADCN-STYLE</p>
-          <h2>Bring one guide into your React app.</h2>
+          <h2>Bring your guides into your React app.</h2>
           <p>
-            Install the reusable component with only the selected character and its 15 local
-            sprites. No account, hosted runtime, or proprietary animation tool required.
+            Install one or more named guide components with their 15 local sprites. No account,
+            hosted runtime, or proprietary animation tool required.
           </p>
         </div>
 
@@ -462,15 +474,19 @@ import guideCharacter from "@/components/mimo-guide/characters/${activeCharacter
               <span>CLI</span>
               <strong>Recommended</strong>
             </div>
-            <h3>One character, one command</h3>
+            <h3>Add guides without conflicts</h3>
             <p>
               Run this from your React project. The installer detects shadcn aliases, places the
-              reusable component in your components folder, and copies only {activeCharacter.label}
-              &apos;s sprites to public.
+              shared runtime once, and adds {activeCharacter.label}&apos;s named component and
+              sprites.
             </p>
             <StudioCodeBlock code={installCommand} language="shell" />
+            <p className="install-command-label">Or add multiple guides atomically</p>
+            <StudioCodeBlock code={multiInstallCommand} language="shell" />
             <p className="install-note">
-              Existing customized files are protected unless you add <code>--force</code>.
+              The first install records the core API in <code>.mimo-guide/manifest.json</code>.
+              Later adds leave the core and existing guides untouched. <code>--force</code> replaces
+              only conflicting files for the characters selected in that command.
             </p>
           </article>
 
@@ -479,17 +495,17 @@ import guideCharacter from "@/components/mimo-guide/characters/${activeCharacter
               <span>MANUAL</span>
               <strong>Copy and own</strong>
             </div>
-            <h3>Reusable core + one character</h3>
+            <h3>Reusable core + additive guides</h3>
             <ol>
               <li>
-                Copy the four core files from <code>packages/mimo-guide/src</code>.
+                Copy the four core files from <code>packages/mimo-guide/src</code> once.
               </li>
               <li>
-                Copy <code>src/characters/{activeCharacter.id}.ts</code> beside the core.
+                Add one named <code>src/characters/*-guide.tsx</code> module per character.
               </li>
               <li>
-                Copy only <code>assets/{activeCharacter.id}</code> to{" "}
-                <code>public/mimo-guides/{activeCharacter.id}</code>.
+                Copy each matching asset folder to <code>public/mimo-guides/&lt;character&gt;</code>
+                .
               </li>
             </ol>
             <a
@@ -504,10 +520,19 @@ import guideCharacter from "@/components/mimo-guide/characters/${activeCharacter
 
         <div className="usage-example">
           <div>
-            <span>USE IT</span>
-            <strong>Controlled React component</strong>
+            <span>NAMED GUIDE</span>
+            <strong>One import, no character wiring</strong>
           </div>
           <StudioCodeBlock code={usageCode} language="tsx" />
+        </div>
+
+        <div className="usage-example usage-example-secondary">
+          <div>
+            <span>DYNAMIC ROSTER</span>
+            <strong>Switch with the generic MimoGuide</strong>
+            <p>The application owns this registry; installing a character never mutates it.</p>
+          </div>
+          <StudioCodeBlock code={dynamicUsageCode} language="tsx" />
         </div>
       </section>
 

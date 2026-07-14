@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { constants } from "node:fs";
-import { access, copyFile, mkdir, readdir, readFile } from "node:fs/promises";
+import { access, copyFile, mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -23,6 +23,9 @@ const EXPRESSIONS = [
   "impressed",
 ];
 const CORE_FILES = ["mimo-guide.tsx", "mimo-guide.module.css", "guide-character.ts", "index.ts"];
+const CORE_API_VERSION = 1;
+const MANIFEST_SCHEMA_VERSION = 1;
+const MANIFEST_PATH = ".mimo-guide/manifest.json";
 
 const PACKAGE_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -31,18 +34,19 @@ function printHelp() {
 Mimo Guide installer
 
 Usage:
-  mimo-guide add [project] --character <id> [options]
+  mimo-guide add [project] --character <id> [--character <id> ...] [options]
 
 Options:
-  --character <id>       Character to install (required)
+  --character <id>        Character to install (repeatable, required)
   --component-dir <path>  Component destination relative to the project
   --public-dir <path>     Public folder relative to the project (default: public)
   --dry-run               Show what would change without writing files
-  --force                 Replace conflicting Mimo Guide files
+  --force                 Replace conflicting selected-character files
   -h, --help              Show this help
 
 Examples:
   mimo-guide add . --character sage
+  mimo-guide add . --character sage --character tesla
   mimo-guide add ../my-app --character tesla --dry-run
   mimo-guide add . --character socrates --component-dir src/components/mimo-guide
 `);
@@ -55,7 +59,7 @@ function parseArgs(argv) {
 
   const options = {
     target: undefined,
-    character: undefined,
+    characters: [],
     componentDir: undefined,
     publicDir: "public",
     dryRun: false,
@@ -77,7 +81,7 @@ function parseArgs(argv) {
       if (!value || value.startsWith("--")) {
         throw new Error(`${argument} requires a value.`);
       }
-      if (argument === "--character") options.character = value;
+      if (argument === "--character") options.characters.push(value);
       if (argument === "--component-dir") options.componentDir = value;
       if (argument === "--public-dir") options.publicDir = value;
       index += 1;
@@ -244,6 +248,14 @@ function relativePath(root, filePath) {
   return path.relative(root, filePath).split(path.sep).join("/");
 }
 
+function componentName(characterId) {
+  return `${characterId
+    .split("-")
+    .filter(Boolean)
+    .map((part) => `${part[0]?.toUpperCase() ?? ""}${part.slice(1)}`)
+    .join("")}Guide`;
+}
+
 async function install(options) {
   const projectRoot = path.resolve(options.target);
   const packageJsonPath = path.join(projectRoot, "package.json");
@@ -265,40 +277,67 @@ async function install(options) {
   }
 
   const component = await resolveComponentDestination(projectRoot, options.componentDir);
+  const manifestPath = path.join(projectRoot, MANIFEST_PATH);
+  const installedManifest = await readJson(manifestPath);
+  const componentDirectory = relativePath(projectRoot, component.directory);
+  const publicDirectory = relativePath(projectRoot, path.resolve(projectRoot, options.publicDir));
+
+  if (installedManifest) {
+    if (
+      installedManifest.schemaVersion !== MANIFEST_SCHEMA_VERSION ||
+      installedManifest.coreApiVersion !== CORE_API_VERSION
+    ) {
+      throw new Error(
+        `The installed Mimo Guide runtime is not compatible with this installer. Upgrade the shared runtime explicitly before adding characters.`,
+      );
+    }
+    if (
+      installedManifest.componentDirectory !== componentDirectory ||
+      installedManifest.publicDirectory !== publicDirectory
+    ) {
+      throw new Error(
+        `This project already installs Mimo Guide in ${installedManifest.componentDirectory} with assets in ${installedManifest.publicDirectory}. Use the same component and public directories when adding characters.`,
+      );
+    }
+  }
+
   const packageAssetsDirectory = path.join(PACKAGE_ROOT, "assets");
   const characterIds = (await readdir(packageAssetsDirectory, { withFileTypes: true }))
     .filter((entry) => entry.isDirectory())
     .map((entry) => entry.name)
     .sort();
-  if (!options.character) {
+  if (!options.characters.length) {
     throw new Error(
-      `Choose one character with --character <id>. Available: ${characterIds.join(", ")}`,
+      `Choose at least one character with --character <id>. Available: ${characterIds.join(", ")}`,
     );
   }
-  if (!characterIds.includes(options.character)) {
-    throw new Error(
-      `Unknown character "${options.character}". Available: ${characterIds.join(", ")}`,
+  const selectedCharacters = [...new Set(options.characters)];
+  for (const selectedCharacter of selectedCharacters) {
+    if (!characterIds.includes(selectedCharacter)) {
+      throw new Error(
+        `Unknown character "${selectedCharacter}". Available: ${characterIds.join(", ")}`,
+      );
+    }
+
+    const selectedCharacterModule = path.join(
+      PACKAGE_ROOT,
+      "src",
+      "characters",
+      `${selectedCharacter}-guide.tsx`,
     );
+    if (!(await exists(selectedCharacterModule))) {
+      throw new Error(`Character "${selectedCharacter}" is missing its guide module.`);
+    }
   }
 
-  const selectedCharacter = options.character;
-  const selectedCharacterModule = path.join(
-    PACKAGE_ROOT,
-    "src",
-    "characters",
-    `${selectedCharacter}.ts`,
-  );
-  if (!(await exists(selectedCharacterModule))) {
-    throw new Error(`Character "${selectedCharacter}" is missing its source module.`);
-  }
-  const operations = [
-    ...CORE_FILES.map((name) => ({
-      source: path.join(PACKAGE_ROOT, "src", name),
-      destination: path.join(component.directory, name),
-    })),
+  const coreOperations = CORE_FILES.map((name) => ({
+    source: path.join(PACKAGE_ROOT, "src", name),
+    destination: path.join(component.directory, name),
+  }));
+  const characterOperations = selectedCharacters.flatMap((selectedCharacter) => [
     {
-      source: selectedCharacterModule,
-      destination: path.join(component.directory, "characters", `${selectedCharacter}.ts`),
+      source: path.join(PACKAGE_ROOT, "src", "characters", `${selectedCharacter}-guide.tsx`),
+      destination: path.join(component.directory, "characters", `${selectedCharacter}-guide.tsx`),
     },
     ...EXPRESSIONS.map((expression) => ({
       source: path.join(packageAssetsDirectory, selectedCharacter, `${expression}.webp`),
@@ -310,10 +349,23 @@ async function install(options) {
         `${expression}.webp`,
       ),
     })),
-  ];
+  ]);
 
+  const missingCoreOperations = installedManifest
+    ? (
+        await Promise.all(
+          coreOperations.map(async (operation) => ({
+            operation,
+            exists: await exists(operation.destination),
+          })),
+        )
+      )
+        .filter(({ exists: destinationExists }) => !destinationExists)
+        .map(({ operation }) => operation)
+    : coreOperations;
+  const plannedOperations = [...missingCoreOperations, ...characterOperations];
   const states = await Promise.all(
-    operations.map(async (operation) => ({
+    plannedOperations.map(async (operation) => ({
       ...operation,
       exists: await exists(operation.destination),
       matches: await filesMatch(operation.source, operation.destination),
@@ -326,10 +378,22 @@ async function install(options) {
       .map((operation) => `  - ${relativePath(projectRoot, operation.destination)}`)
       .join("\n");
     throw new Error(
-      `Installation stopped before writing because these files already differ:\n${conflictList}\n\nRe-run with --force to replace only the Mimo Guide files.`,
+      `Installation stopped before writing because these files already differ:\n${conflictList}\n\nRe-run with --force to replace only the selected character files${installedManifest ? "" : " and adopt the current shared runtime"}.`,
     );
   }
 
+  const installedCharacters = Array.isArray(installedManifest?.characters)
+    ? installedManifest.characters.filter((character) => typeof character === "string")
+    : [];
+  const nextManifest = {
+    schemaVersion: MANIFEST_SCHEMA_VERSION,
+    coreApiVersion: CORE_API_VERSION,
+    componentDirectory,
+    publicDirectory,
+    characters: [...new Set([...installedCharacters, ...selectedCharacters])].sort(),
+  };
+  const manifestNeedsWrite =
+    !installedManifest || JSON.stringify(installedManifest) !== JSON.stringify(nextManifest);
   const pending = states.filter((operation) => !operation.matches);
   console.log(`${options.dryRun ? "Would install" : "Installing"} Mimo Guide in ${projectRoot}`);
 
@@ -346,18 +410,29 @@ async function install(options) {
     }
   }
 
+  if (manifestNeedsWrite) {
+    console.log(`  ${installedManifest ? "update   " : "create   "} ${MANIFEST_PATH}`);
+    if (!options.dryRun) {
+      await mkdir(path.dirname(manifestPath), { recursive: true });
+      await writeFile(manifestPath, `${JSON.stringify(nextManifest, null, 2)}\n`);
+    }
+  }
+
   console.log(
-    `\n${options.dryRun ? "Dry run complete" : pending.length ? "Mimo Guide is ready" : "Mimo Guide was already up to date"}.`,
+    `\n${options.dryRun ? "Dry run complete" : pending.length || manifestNeedsWrite ? "Mimo Guide is ready" : "Mimo Guide was already up to date"}.`,
   );
-  console.log("\nUse it like this:\n");
+  console.log("\nUse the installed guides like this:\n");
+  const guideImportRoot = component.importPath ?? relativePath(projectRoot, component.directory);
+  for (const selectedCharacter of selectedCharacters) {
+    const guideComponentName = componentName(selectedCharacter);
+    console.log(
+      `import { ${guideComponentName} } from "${guideImportRoot}/characters/${selectedCharacter}-guide";`,
+    );
+    console.log(`\n<${guideComponentName} expression="thinking" />\n`);
+  }
   console.log(
-    `import { MimoGuide, type GuideExpression } from "${component.importPath ?? relativePath(projectRoot, component.directory)}";`,
+    `Installed ${selectedCharacters.length === 1 ? "character" : "characters"}: ${selectedCharacters.join(", ")}`,
   );
-  console.log(
-    `import guideCharacter from "${component.importPath ?? relativePath(projectRoot, component.directory)}/characters/${selectedCharacter}";`,
-  );
-  console.log('\n<MimoGuide character={guideCharacter} expression="thinking" />');
-  console.log(`\nInstalled character: ${selectedCharacter}`);
   console.log(`\nAvailable expressions: ${EXPRESSIONS.join(", ")}`);
 }
 
